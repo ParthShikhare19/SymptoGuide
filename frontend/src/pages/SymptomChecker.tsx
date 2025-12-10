@@ -9,15 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { commonSymptoms } from "@/data/mockData";
 import { apiService, SymptomAnalysisResponse } from "@/services/api";
-import { 
-  Activity, 
-  X, 
-  Plus, 
+import {
+  Activity,
+  X,
+  Plus,
   AlertCircle,
   Clock,
   User,
   ArrowRight,
-  Stethoscope
+  Stethoscope,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -61,42 +61,78 @@ const SymptomChecker = () => {
     }
 
     setIsLoading(true);
-    
-    try {
-      // Call the ML model API
-      const response: SymptomAnalysisResponse = await apiService.analyzeSymptoms({
-        symptoms,
-        description,
-        age,
-        gender,
-        duration,
-        severity,
-      });
 
-      if (response.success) {
-        // Store API response in session storage for results page
-        sessionStorage.setItem("symptomData", JSON.stringify({
+    try {
+      // Try ML model API first
+      try {
+        const response: SymptomAnalysisResponse = await apiService.analyzeSymptoms({
+          symptoms,
+          description,
+          age,
+          gender,
+          duration,
+          severity,
+        });
+
+        if (response.success) {
+          sessionStorage.setItem("symptomData", JSON.stringify({
+            symptoms,
+            description,
+            duration,
+            severity,
+            age,
+            gender,
+          }));
+          
+          sessionStorage.setItem("analysisResults", JSON.stringify(response));
+          
+          toast.success("Analysis complete!");
+          navigate("/results");
+          return;
+        }
+      } catch (mlError) {
+        console.log("ML API not available, falling back to simple assessment");
+      }
+
+      // Fallback to simple assessment endpoint
+      const res = await fetch("http://127.0.0.1:5000/api/assess", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           symptoms,
           description,
           duration,
           severity,
           age,
           gender,
-        }));
-        
-        sessionStorage.setItem("analysisResults", JSON.stringify(response));
-        
-        toast.success("Analysis complete!");
-        navigate("/results");
-      } else {
-        toast.error("Analysis failed. Please try again.");
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Backend error");
       }
+
+      const assessment = await res.json();
+
+      sessionStorage.setItem(
+        "symptomData",
+        JSON.stringify({
+          symptoms,
+          description,
+          duration,
+          severity,
+          age,
+          gender,
+          assessment,
+        })
+      );
+
+      toast.success("Analysis complete!");
+      navigate("/results");
     } catch (error) {
       console.error("Analysis error:", error);
       toast.error(
-        error instanceof Error 
-          ? error.message 
-          : "Failed to analyze symptoms. Please ensure the backend server is running."
+        "Unable to analyze symptoms. Please ensure the backend server is running."
       );
     } finally {
       setIsLoading(false);
@@ -312,7 +348,7 @@ const SymptomChecker = () => {
             {/* Disclaimer */}
             <div className="mt-6 p-4 bg-warning/10 border border-warning/20 rounded-xl">
               <p className="text-sm text-muted-foreground text-center">
-                <strong className="text-warning">Important:</strong> This tool provides general health information only and is not intended as medical advice. 
+                <strong className="text-warning">Important:</strong> This tool provides general health information only and is not intended as medical advice.
                 Always consult a qualified healthcare professional for proper diagnosis and treatment.
               </p>
             </div>

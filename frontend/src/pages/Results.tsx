@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { symptomCategories, specialists } from "@/data/mockData";
 import {
   Activity,
   AlertTriangle,
@@ -45,15 +46,16 @@ const Results = () => {
     const data = sessionStorage.getItem("symptomData");
     const results = sessionStorage.getItem("analysisResults");
     
-    if (!data || !results) {
+    if (!data) {
       navigate("/symptom-checker");
       return;
     }
     
     setSymptomData(JSON.parse(data));
-    setAnalysisResults(JSON.parse(results));
+    if (results) {
+      setAnalysisResults(JSON.parse(results));
+    }
     
-    // Simulate loading
     setTimeout(() => setIsLoading(false), 800);
   }, [navigate]);
 
@@ -70,113 +72,141 @@ const Results = () => {
     );
   }
 
-  // Get ML model results or fallback to mock data
+  // Get ML model results if available
   const prediction = analysisResults?.prediction;
   const severity = analysisResults?.severity;
   const recommendations = analysisResults?.recommendations;
-  const isEmergency = severity?.is_emergency || symptomData?.severity === "severe";
+  
+  // Get assessment data (fallback)
+  const assessment = symptomData?.assessment;
+  const concernLevel: "low" | "moderate" | "high" =
+    assessment?.concern_level || "low";
+  const isEmergencyBackend = concernLevel === "high";
+  const isEmergency = severity?.is_emergency || isEmergencyBackend || symptomData?.severity === "severe";
+  
+  const allSymptoms: string[] = symptomData?.symptoms || [];
+  const departments: string[] =
+    assessment?.recommended_departments || ["Primary Care"];
 
-  // Generate dynamic concern areas based on severity and symptoms
+  // Generate dynamic concern areas based on ML severity or fallback to mock categories
   const getConcernAreas = () => {
-    if (!severity?.symptom_details) return [];
-    
-    const concerns: Array<{
-      id: string;
-      name: string;
-      description: string;
-      severity: 'low' | 'medium' | 'high';
-      icon: string;
-    }> = [];
+    if (severity?.symptom_details) {
+      // Use ML model data
+      const concerns: Array<{
+        id: string;
+        name: string;
+        description: string;
+        severity: 'low' | 'medium' | 'high';
+        icon: string;
+      }> = [];
 
-    // Get top symptoms by severity
-    const sortedSymptoms = Object.entries(severity.symptom_details)
-      .sort(([, a], [, b]) => (b as number) - (a as number))
-      .slice(0, 5);
+      const sortedSymptoms = Object.entries(severity.symptom_details)
+        .sort(([, a], [, b]) => (b as number) - (a as number))
+        .slice(0, 5);
 
-    sortedSymptoms.forEach(([symptom, severityScore], index) => {
-      const score = severityScore as number;
-      const symptomName = symptom.replace(/_/g, ' ').split(' ').map(w => 
-        w.charAt(0).toUpperCase() + w.slice(1)
-      ).join(' ');
-      
-      // Determine severity level
-      let severityLevel: 'low' | 'medium' | 'high' = 'low';
-      if (score >= 6) severityLevel = 'high';
-      else if (score >= 4) severityLevel = 'medium';
-      
-      // Map symptom to icon
-      const getIconForSymptom = (sym: string) => {
-        if (sym.includes('breath') || sym.includes('respiratory')) return 'Wind';
-        if (sym.includes('heart') || sym.includes('chest')) return 'Heart';
-        if (sym.includes('head') || sym.includes('brain') || sym.includes('mental')) return 'Brain';
-        if (sym.includes('fever') || sym.includes('temperature')) return 'Thermometer';
-        if (sym.includes('ear') || sym.includes('hearing')) return 'Ear';
-        if (sym.includes('bone') || sym.includes('joint') || sym.includes('muscle')) return 'Bone';
-        if (sym.includes('stomach') || sym.includes('digest') || sym.includes('nausea')) return 'Utensils';
-        if (sym.includes('fluid') || sym.includes('swelling') || sym.includes('blood')) return 'Droplets';
-        return 'Stethoscope';
-      };
-      
-      concerns.push({
-        id: `concern-${index}`,
-        name: symptomName,
-        description: `Severity score: ${score}/10`,
-        severity: severityLevel,
-        icon: getIconForSymptom(symptom.toLowerCase())
+      sortedSymptoms.forEach(([symptom, severityScore], index) => {
+        const score = severityScore as number;
+        const symptomName = symptom.replace(/_/g, ' ').split(' ').map(w => 
+          w.charAt(0).toUpperCase() + w.slice(1)
+        ).join(' ');
+        
+        let severityLevel: 'low' | 'medium' | 'high' = 'low';
+        if (score >= 6) severityLevel = 'high';
+        else if (score >= 4) severityLevel = 'medium';
+        
+        const getIconForSymptom = (sym: string) => {
+          if (sym.includes('breath') || sym.includes('respiratory')) return 'Wind';
+          if (sym.includes('heart') || sym.includes('chest')) return 'Heart';
+          if (sym.includes('head') || sym.includes('brain') || sym.includes('mental')) return 'Brain';
+          if (sym.includes('fever') || sym.includes('temperature')) return 'Thermometer';
+          if (sym.includes('ear') || sym.includes('hearing')) return 'Ear';
+          if (sym.includes('bone') || sym.includes('joint') || sym.includes('muscle')) return 'Bone';
+          if (sym.includes('stomach') || sym.includes('digest') || sym.includes('nausea')) return 'Utensils';
+          if (sym.includes('fluid') || sym.includes('swelling') || sym.includes('blood')) return 'Droplets';
+          return 'Stethoscope';
+        };
+        
+        concerns.push({
+          id: `concern-${index}`,
+          name: symptomName,
+          description: `Severity score: ${score}/10`,
+          severity: severityLevel,
+          icon: getIconForSymptom(symptom.toLowerCase())
+        });
       });
-    });
 
-    return concerns;
+      return concerns;
+    }
+    
+    // Fallback to mock categories based on symptoms
+    const relevantCategories = symptomCategories
+      .filter((cat) => {
+        const keywords = (cat.keywords || []) as string[];
+        const text = keywords.join(" ").toLowerCase();
+        return allSymptoms.some((s) => text.includes(s.toLowerCase()));
+      })
+      .slice(0, 3);
+
+    return relevantCategories.length > 0 ? relevantCategories : symptomCategories.slice(0, 3);
   };
 
-  // Get specialist info based on ML recommendation
+  // Get specialist info based on ML recommendation or fallback to mock specialists
   const getSpecialistInfo = () => {
-    if (!recommendations?.specialist) {
-      return null;
+    if (recommendations?.specialist) {
+      // Use ML model recommendation
+      const specialistName = recommendations.specialist;
+      
+      const getConditionsForSpecialist = () => {
+        if (!prediction?.disease) return [];
+        const conditions = [prediction.disease];
+        if (prediction.alternatives) {
+          prediction.alternatives.slice(0, 2).forEach((alt: any) => {
+            conditions.push(alt.disease);
+          });
+        }
+        return conditions;
+      };
+
+      const getIconForSpecialist = (specialist: string) => {
+        const s = specialist.toLowerCase();
+        if (s.includes('cardio') || s.includes('heart')) return 'Heart';
+        if (s.includes('neuro') || s.includes('brain')) return 'Brain';
+        if (s.includes('ent') || s.includes('ear')) return 'Ear';
+        if (s.includes('ortho') || s.includes('bone')) return 'Bone';
+        if (s.includes('respir') || s.includes('lung')) return 'Wind';
+        if (s.includes('gastro') || s.includes('digest')) return 'Utensils';
+        return 'Stethoscope';
+      };
+
+      return {
+        id: 'specialist-1',
+        name: specialistName,
+        title: 'Medical Specialist',
+        description: recommendations.description || `Specialized in treating ${prediction?.disease || 'your condition'}`,
+        icon: getIconForSpecialist(specialistName),
+        conditions: getConditionsForSpecialist()
+      };
     }
-
-    const specialistName = recommendations.specialist;
-    
-    // Map specialists to relevant conditions based on predicted disease
-    const getConditionsForSpecialist = () => {
-      if (!prediction?.disease) return [];
-      
-      const conditions = [prediction.disease];
-      
-      // Add alternative predictions as related conditions
-      if (prediction.alternatives) {
-        prediction.alternatives.slice(0, 2).forEach((alt: any) => {
-          conditions.push(alt.disease);
-        });
-      }
-      
-      return conditions;
-    };
-
-    // Map specialist to icon
-    const getIconForSpecialist = (specialist: string) => {
-      const s = specialist.toLowerCase();
-      if (s.includes('cardio') || s.includes('heart')) return 'Heart';
-      if (s.includes('neuro') || s.includes('brain')) return 'Brain';
-      if (s.includes('ent') || s.includes('ear')) return 'Ear';
-      if (s.includes('ortho') || s.includes('bone')) return 'Bone';
-      if (s.includes('respir') || s.includes('lung')) return 'Wind';
-      if (s.includes('gastro') || s.includes('digest')) return 'Utensils';
-      return 'Stethoscope';
-    };
-
-    return {
-      id: 'specialist-1',
-      name: specialistName,
-      title: 'Medical Specialist',
-      description: recommendations.description || `Specialized in treating ${prediction?.disease || 'your condition'}`,
-      icon: getIconForSpecialist(specialistName),
-      conditions: getConditionsForSpecialist()
-    };
+    return null;
   };
 
   const concernAreas = getConcernAreas();
   const specialistInfo = getSpecialistInfo();
+  
+  // Fallback specialists list
+  const recommendedSpecialists = specialists
+    .filter((sp) => {
+      const spDepts = (sp.departments || []) as string[];
+      return departments.some((d) => spDepts.includes(d));
+    })
+    .slice(0, 4);
+
+  const finalSpecialists =
+    recommendedSpecialists.length > 0
+      ? recommendedSpecialists
+      : specialists.slice(0, 4);
+
+  const firstDepartment = departments[0] || "Primary Care";
 
   return (
     <Layout>
@@ -192,7 +222,8 @@ const Results = () => {
               Your Symptom <span className="gradient-text">Analysis</span>
             </h1>
             <p className="text-muted-foreground">
-              Based on your symptoms: {symptomData?.symptoms?.join(", ") || "General assessment"}
+              Based on your symptoms:{" "}
+              {symptomData?.symptoms?.join(", ") || "General assessment"}
             </p>
           </div>
 
@@ -372,7 +403,9 @@ const Results = () => {
                     <p className="text-muted-foreground mb-4">
                       {severity?.score >= 30 
                         ? `With a severity score of ${severity.score}, your symptoms require immediate medical attention. Please do not delay seeking emergency care.`
-                        : `Based on the severity of your symptoms (score: ${severity?.score || 'N/A'}), we recommend seeking medical attention promptly. This is not a diagnosis. If you experience chest pain, difficulty breathing, or other emergency symptoms, please call emergency services immediately.`
+                        : severity?.score
+                        ? `Based on the severity of your symptoms (score: ${severity.score}), we recommend seeking medical attention promptly. This is not a diagnosis. If you experience chest pain, difficulty breathing, or other emergency symptoms, please call emergency services immediately.`
+                        : `Based on the severity of your symptoms, we recommend seeking medical attention promptly. This is not a diagnosis. If you experience chest pain, difficulty breathing, or other emergency symptoms, please call emergency services immediately.`
                       }
                     </p>
                     <div className="flex flex-wrap gap-3">
@@ -380,8 +413,11 @@ const Results = () => {
                         <Phone className="h-4 w-4" />
                         Call 102 (Ambulance) / 108 (EMS)
                       </Button>
-                      <Link to="/hospitals">
-                        <Button variant="outline" className="gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                      <Link to="/hospitals" state={{ department: "Emergency" }}>
+                        <Button
+                          variant="outline"
+                          className="gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        >
                           Find Emergency Room
                           <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -392,6 +428,68 @@ const Results = () => {
               </div>
             )}
 
+            {/* Backend Assessment Summary */}
+            {assessment && (
+              <section className="healthcare-card p-6 md:p-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Activity className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">Preliminary Assessment</h2>
+                    <p className="text-sm text-muted-foreground">
+                      This is an automated, non-diagnostic assessment based on
+                      your reported symptoms.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Concern level:
+                  </span>
+                  <Badge
+                    variant="outline"
+                    className={
+                      concernLevel === "high"
+                        ? "bg-destructive/10 text-destructive border-destructive/40"
+                        : concernLevel === "moderate"
+                        ? "bg-warning/10 text-warning border-warning/40"
+                        : "bg-success/10 text-success border-success/40"
+                    }
+                  >
+                    {concernLevel.toUpperCase()}
+                  </Badge>
+                </div>
+
+                {assessment.suggestions && (
+                  <div className="mb-4">
+                    <p className="text-sm font-semibold mb-2">Suggestions:</p>
+                    <ul className="list-disc list-inside text-sm text-muted-foreground">
+                      {assessment.suggestions.map(
+                        (s: string, idx: number) => (
+                          <li key={idx}>{s}</li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
+
+                {assessment.recommended_departments && (
+                  <div className="flex flex-wrap gap-2">
+                    <span className="text-sm font-semibold">
+                      Recommended departments:
+                    </span>
+                    {assessment.recommended_departments.map((d: string) => (
+                      <Badge key={d} variant="secondary">
+                        {d}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
             {/* Potential Concern Areas - Dynamic based on symptom severity */}
             {concernAreas.length > 0 && (
               <section className="healthcare-card p-6 md:p-8">
@@ -399,7 +497,9 @@ const Results = () => {
                   <div className="p-2 bg-primary/10 rounded-lg">
                     <Activity className="h-5 w-5 text-primary" />
                   </div>
-                  <h2 className="text-xl font-bold">Symptom Severity Analysis</h2>
+                  <h2 className="text-xl font-bold">
+                    {severity?.symptom_details ? 'Symptom Severity Analysis' : 'Potential Concern Areas'}
+                  </h2>
                 </div>
                 
                 <div className="grid md:grid-cols-3 gap-4">
@@ -439,8 +539,8 @@ const Results = () => {
               </section>
             )}
 
-            {/* Recommended Specialist - Dynamic from ML */}
-            {specialistInfo && (
+            {/* Recommended Specialists */}
+            {specialistInfo ? (
               <section className="healthcare-card p-6 md:p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
@@ -489,6 +589,66 @@ const Results = () => {
                   </div>
                 </div>
               </section>
+            ) : finalSpecialists.length > 0 && (
+              <section className="healthcare-card p-6 md:p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-accent/10 rounded-lg">
+                      <Stethoscope className="h-5 w-5 text-accent" />
+                    </div>
+                    <h2 className="text-xl font-bold">Recommended Specialists</h2>
+                  </div>
+                  <Link to="/specialists">
+                    <Button variant="ghost" size="sm" className="gap-1">
+                      View All
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  {finalSpecialists.map((specialist, index) => {
+                    const Icon = iconMap[specialist.icon] || Stethoscope;
+                    return (
+                      <div
+                        key={specialist.id}
+                        className="p-5 rounded-xl bg-secondary/50 border border-border hover:border-primary/50 transition-all hover:shadow-lg group"
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="p-3 bg-gradient-to-br from-primary to-accent rounded-xl group-hover:scale-110 transition-transform">
+                            <Icon className="h-6 w-6 text-primary-foreground" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold mb-1">
+                              {specialist.name}
+                            </h3>
+                            <p className="text-sm text-primary font-medium mb-2">
+                              {specialist.title}
+                            </p>
+                            <p className="text-sm text-muted-foreground mb-3">
+                              {specialist.description}
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                              {specialist.conditions
+                                .slice(0, 3)
+                                .map((condition: string) => (
+                                  <Badge
+                                    key={condition}
+                                    variant="outline"
+                                    className="text-xs"
+                                  >
+                                    {condition}
+                                  </Badge>
+                                ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
             )}
 
             {/* Find Hospitals CTA */}
@@ -498,13 +658,15 @@ const Results = () => {
                   <Building2 className="h-10 w-10 text-primary-foreground" />
                 </div>
                 <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-xl font-bold mb-2">Find Hospitals Near You</h3>
+                  <h3 className="text-xl font-bold mb-2">
+                    Find Hospitals Near You
+                  </h3>
                   <p className="text-muted-foreground">
-                    Search for hospitals and clinics with the specialists you need, 
-                    complete with contact information and directions.
+                    Search for hospitals and clinics with the specialists you
+                    need, complete with contact information and directions.
                   </p>
                 </div>
-                <Link to="/hospitals">
+                <Link to="/hospitals" state={{ department: firstDepartment }}>
                   <Button variant="hero" size="lg" className="gap-2">
                     Find Hospitals
                     <ArrowRight className="h-5 w-5" />
@@ -517,9 +679,11 @@ const Results = () => {
             <div className="p-4 bg-muted rounded-xl flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
               <p className="text-sm text-muted-foreground">
-                <strong>Disclaimer:</strong> This analysis is for informational purposes only and does not constitute 
-                medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified 
-                health provider with any questions you may have regarding a medical condition.
+                <strong>Disclaimer:</strong> This analysis is for informational
+                purposes only and does not constitute medical advice, diagnosis,
+                or treatment. Always seek the advice of your physician or other
+                qualified health provider with any questions you may have
+                regarding a medical condition.
               </p>
             </div>
           </div>

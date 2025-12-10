@@ -11,8 +11,13 @@ import os
 # Add the current directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from model.Healthcare_Assistant_System import HealthcareAssistant
-from model.Interract import extract_symptoms_from_text, SYMPTOM_KEYWORDS
+try:
+    from model.Healthcare_Assistant_System import HealthcareAssistant
+    from model.Interract import extract_symptoms_from_text, SYMPTOM_KEYWORDS
+    ML_MODEL_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ ML Model not available: {e}")
+    ML_MODEL_AVAILABLE = False
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -23,6 +28,8 @@ assistant = None
 def initialize_assistant():
     """Initialize and load the ML model"""
     global assistant
+    if not ML_MODEL_AVAILABLE:
+        return False
     try:
         assistant = HealthcareAssistant()
         assistant.load_model()
@@ -32,11 +39,13 @@ def initialize_assistant():
         print(f"❌ Error loading model: {e}")
         return False
 
+@app.route('/', methods=['GET'])
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
+        'service': 'backend',
         'model_loaded': assistant is not None
     })
 
@@ -60,6 +69,8 @@ def get_all_symptoms():
 @app.route('/api/symptom-keywords', methods=['GET'])
 def get_symptom_keywords():
     """Get symptom keywords for NLP matching"""
+    if not ML_MODEL_AVAILABLE:
+        return jsonify({'error': 'ML model not available'}), 500
     # Get unique base symptoms from SYMPTOM_KEYWORDS
     keywords = list(SYMPTOM_KEYWORDS.keys())
     return jsonify({
@@ -70,7 +81,7 @@ def get_symptom_keywords():
 @app.route('/api/analyze', methods=['POST'])
 def analyze_symptoms():
     """
-    Analyze symptoms and provide comprehensive health assessment
+    Analyze symptoms and provide comprehensive health assessment using ML model
     
     Expected JSON payload:
     {
@@ -168,6 +179,59 @@ def analyze_symptoms():
             'error': f'Analysis failed: {str(e)}'
         }), 500
 
+@app.route('/api/assess', methods=['POST'])
+def assess():
+    """
+    Simple triage-style assessment endpoint (fallback when ML model not available)
+    """
+    data = request.get_json(silent=True) or {}
+
+    symptoms = data.get("symptoms", [])
+    severity = data.get("severity", "")
+    duration = data.get("duration", "")
+
+    # basic triage-style rules: low / moderate / high concern
+    concern = "low"
+
+    red_flag_symptoms = {
+        "chest pain",
+        "difficulty breathing",
+        "shortness of breath",
+        "loss of consciousness",
+        "severe bleeding",
+        "sudden weakness",
+    }
+
+    # normalize symptoms to lowercase for matching
+    lower_symptoms = {s.lower() for s in symptoms}
+
+    if lower_symptoms & red_flag_symptoms:
+        concern = "high"
+    elif severity == "severe":
+        concern = "high"
+    elif severity == "moderate" or duration in {"week", "weeks", "month", "chronic"}:
+        concern = "moderate"
+    elif len(symptoms) >= 3:
+        concern = "moderate"
+
+    if concern == "high":
+        recommended_departments = ["Emergency", "General Medicine"]
+    elif concern == "moderate":
+        recommended_departments = ["General Medicine"]
+    else:
+        recommended_departments = ["Primary Care"]
+
+    return jsonify(
+        {
+            "concern_level": concern,
+            "suggestions": [
+                "This is a preliminary assessment and not a diagnosis.",
+                "If concern is high, seek emergency care.",
+            ],
+            "recommended_departments": recommended_departments,
+        }
+    )
+
 @app.route('/api/extract-symptoms', methods=['POST'])
 def extract_symptoms():
     """
@@ -225,21 +289,23 @@ if __name__ == '__main__':
     print("="*80)
     
     # Initialize the assistant
-    if initialize_assistant():
-        print("\n✅ Server ready to accept requests")
+    if ML_MODEL_AVAILABLE and initialize_assistant():
+        print("\n✅ Server ready with ML model")
         print("📍 API Endpoints:")
         print("   GET  /api/health              - Health check")
         print("   GET  /api/symptoms            - Get all symptoms")
         print("   GET  /api/symptom-keywords    - Get symptom keywords")
-        print("   POST /api/analyze             - Analyze symptoms")
+        print("   POST /api/analyze             - Analyze symptoms (ML-powered)")
+        print("   POST /api/assess              - Simple triage assessment")
         print("   POST /api/extract-symptoms    - Extract symptoms from text")
-        print("\n🚀 Starting Flask server...")
-        print("="*80 + "\n")
-        
-        # Run the server
-        app.run(host='0.0.0.0', port=5000, debug=True)
     else:
-        print("\n❌ Failed to initialize assistant. Please ensure:")
-        print("   1. The model has been trained (run Healthcare_Assistant_System.py)")
-        print("   2. healthcare_model.pkl exists in the backend folder")
-        print("   3. All required dependencies are installed")
+        print("\n⚠️ Running in basic mode (ML model not available)")
+        print("📍 API Endpoints:")
+        print("   GET  /api/health              - Health check")
+        print("   POST /api/assess              - Simple triage assessment")
+    
+    print("\n🚀 Starting Flask server...")
+    print("="*80 + "\n")
+    
+    # Run the server
+    app.run(host='0.0.0.0', port=5000, debug=True)
