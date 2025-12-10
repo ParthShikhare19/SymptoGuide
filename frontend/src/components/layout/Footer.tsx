@@ -75,21 +75,9 @@ export const Footer = () => {
         </div>
 
         {/* Disclaimer */}
-        <div className="border-t border-border pt-8">
-          <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 mb-6">
-            <p className="text-sm text-muted-foreground text-center">
-              <strong className="text-warning">Disclaimer:</strong> This tool provides preliminary insights and does NOT replace professional medical diagnosis. 
-              Always consult with a qualified healthcare provider for medical advice, diagnosis, and treatment.
-            </p>
-          </div>
-          
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>© 2025 SymptoGuide. All rights reserved.</p>
-            <div className="flex gap-6">
-              <Link to="#" className="hover:text-primary transition-colors">Privacy Policy</Link>
-              <Link to="#" className="hover:text-primary transition-colors">Terms of Service</Link>
-              <Link to="#" className="hover:text-primary transition-colors">Cookie Policy</Link>
-            </div>
+        <div className="border-t border-border pt-8">          
+          <div className="flex flex-col md:flex-row justify-center items-center text-sm text-muted-foreground">
+            <p>© 2025 SymptoGuide. Created by Team Just Debugging It in Nexolve 2025.</p>
           </div>
         </div>
       </div>
