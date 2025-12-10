@@ -1,0 +1,55 @@
+2025-12-10 15:48:57,215 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.41.240:5000
+2025-12-10 15:48:57,215 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-12-10 15:48:57,217 - werkzeug - INFO -  * Restarting with stat
+2025-12-10 15:48:58,519 - werkzeug - WARNING -  * Debugger is active!
+2025-12-10 15:48:58,523 - werkzeug - INFO -  * Debugger PIN: 552-072-332
+2025-12-10 15:49:23,251 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 15:49:23] "OPTIONS /api/analyze HTTP/1.1" 200 -
+2025-12-10 15:49:23,516 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 15:49:23,521 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 15:49:23] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 15:49:24,536 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 15:49:24,538 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 15:49:24] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 15:49:25,866 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 15:49:25,871 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 15:49:25] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 15:49:26,883 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 15:49:26,885 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 15:49:26] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 15:49:26,893 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 15:49:26] "OPTIONS /api/assess HTTP/1.1" 200 -
+2025-12-10 15:49:26,904 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 15:49:26] "POST /api/assess HTTP/1.1" 200 -
+2025-12-10 16:01:30,347 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:01:30] "OPTIONS /api/analyze HTTP/1.1" 200 -
+2025-12-10 16:01:30,596 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 16:01:30,597 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:01:30] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 16:01:31,601 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 16:01:31,602 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:01:31] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 16:01:32,938 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 16:01:32,940 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:01:32] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 16:01:33,947 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 16:01:33,948 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:01:33] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 16:01:33,957 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:01:33] "OPTIONS /api/assess HTTP/1.1" 200 -
+2025-12-10 16:01:33,965 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:01:33] "POST /api/assess HTTP/1.1" 200 -
+2025-12-10 16:51:24,740 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.41.240:5000
+2025-12-10 16:51:24,741 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-12-10 16:51:24,744 - werkzeug - INFO -  * Restarting with stat
+2025-12-10 16:51:27,514 - werkzeug - WARNING -  * Debugger is active!
+2025-12-10 16:51:27,520 - werkzeug - INFO -  * Debugger PIN: 552-072-332
+2025-12-10 16:54:02,967 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:54:02] "OPTIONS /api/analyze HTTP/1.1" 200 -
+2025-12-10 16:54:03,237 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 16:54:03,240 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:54:03] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 16:54:04,259 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 16:54:04,263 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:54:04] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 16:54:05,577 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 16:54:05,579 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:54:05] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 16:54:06,594 - SymptoGuide.API - ERROR - Analyze called but model not initialized
+2025-12-10 16:54:06,596 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:54:06] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
+2025-12-10 16:54:06,620 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:54:06] "OPTIONS /api/assess HTTP/1.1" 200 -
+2025-12-10 16:54:06,641 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:54:06] "POST /api/assess HTTP/1.1" 200 -
+2025-12-10 17:22:39,635 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 17:22:39] "OPTIONS /api/assess HTTP/1.1" 200 -
+2025-12-10 17:22:39,688 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 17:22:39] "POST /api/assess HTTP/1.1" 200 -
+2025-12-10 17:23:06,670 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 17:23:06] "OPTIONS /api/assess HTTP/1.1" 200 -
+2025-12-10 17:23:06,740 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 17:23:06] "POST /api/assess HTTP/1.1" 200 -
+2025-12-10 17:32:25,566 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 17:32:25] "OPTIONS /api/assess HTTP/1.1" 200 -
+2025-12-10 17:32:25,795 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 17:32:25] "POST /api/assess HTTP/1.1" 200 -
