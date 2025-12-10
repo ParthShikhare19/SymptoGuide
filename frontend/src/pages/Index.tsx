@@ -79,7 +79,7 @@ const Index = () => {
               <br />
               <span className="gradient-text">Get Guided Medical Help</span>
               <br />
-              —Faster and Smarter.
+              Faster and Smarter.
             </h1>
 
             {/* Subheading */}

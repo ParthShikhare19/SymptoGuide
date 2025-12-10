@@ -1,0 +1,21 @@
+# SymptoGuide Backend Requirements
+# Python dependencies for the Flask API server
+
+# Web Framework
+Flask==3.0.0
+flask-cors==4.0.0
+
+# Machine Learning
+scikit-learn==1.3.2
+pandas==2.1.4
+numpy==1.26.2
+
+# Natural Language Processing
+nltk==3.8.1
+
+# Data Processing
+pickle5==0.0.12
+
+# Production Server (optional)
+gunicorn==21.2.0
+waitress==3.0.0

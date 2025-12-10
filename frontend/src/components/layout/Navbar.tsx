@@ -31,8 +31,8 @@ export const Navbar = () => {
               </div>
             </div>
             <span className="font-bold text-xl tracking-tight">
-              <span className="gradient-text">Health</span>
-              <span className="text-foreground">Assist</span>
+              <span className="gradient-text">Sympto</span>
+              <span className="text-foreground">Guide</span>
             </span>
           </Link>
 

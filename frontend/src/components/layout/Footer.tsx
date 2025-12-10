@@ -13,8 +13,8 @@ export const Footer = () => {
                 <Heart className="h-5 w-5 text-primary-foreground" fill="currentColor" />
               </div>
               <span className="font-bold text-xl">
-                <span className="gradient-text">Health</span>
-                <span className="text-foreground">Assist</span>
+                <span className="gradient-text">Sympto</span>
+                <span className="text-foreground">Guide</span>
               </span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -45,15 +45,15 @@ export const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Phone className="h-4 w-4 text-primary" />
-                <span>1-800-HEALTH</span>
+                <span>+91 9876543210</span>
               </li>
               <li className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Mail className="h-4 w-4 text-primary" />
-                <span>support@healthassist.com</span>
+                <span>symptoguide@gmail.com</span>
               </li>
               <li className="flex items-start gap-2 text-muted-foreground text-sm">
                 <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                <span>Available Nationwide</span>
+                <span>Available Worldwide</span>
               </li>
             </ul>
           </div>
@@ -61,11 +61,15 @@ export const Footer = () => {
           {/* Emergency */}
           <div>
             <h4 className="font-semibold text-foreground mb-4">Emergency</h4>
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-              <p className="text-sm text-destructive font-medium mb-2">
-                For medical emergencies
-              </p>
-              <p className="text-2xl font-bold text-destructive">911</p>
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 space-y-3">
+              <div>
+                <p className="text-xs text-destructive/80 font-medium">Ambulance</p>
+                <p className="text-2xl font-bold text-destructive">102</p>
+              </div>
+              <div>
+                <p className="text-xs text-destructive/80 font-medium">Emergency Medical Service</p>
+                <p className="text-2xl font-bold text-destructive">108</p>
+              </div>
             </div>
           </div>
         </div>
@@ -80,7 +84,7 @@ export const Footer = () => {
           </div>
           
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>© 2024 HealthAssist. All rights reserved.</p>
+            <p>© 2025 SymptoGuide. All rights reserved.</p>
             <div className="flex gap-6">
               <Link to="#" className="hover:text-primary transition-colors">Privacy Policy</Link>
               <Link to="#" className="hover:text-primary transition-colors">Terms of Service</Link>

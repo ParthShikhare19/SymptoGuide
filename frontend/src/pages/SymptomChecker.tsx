@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { commonSymptoms } from "@/data/mockData";
+import { apiService, SymptomAnalysisResponse } from "@/services/api";
 import { 
   Activity, 
   X, 
@@ -61,21 +62,45 @@ const SymptomChecker = () => {
 
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    // Store data in session storage for results page
-    sessionStorage.setItem("symptomData", JSON.stringify({
-      symptoms,
-      description,
-      duration,
-      severity,
-      age,
-      gender,
-    }));
-    
-    setIsLoading(false);
-    navigate("/results");
+    try {
+      // Call the ML model API
+      const response: SymptomAnalysisResponse = await apiService.analyzeSymptoms({
+        symptoms,
+        description,
+        age,
+        gender,
+        duration,
+        severity,
+      });
+
+      if (response.success) {
+        // Store API response in session storage for results page
+        sessionStorage.setItem("symptomData", JSON.stringify({
+          symptoms,
+          description,
+          duration,
+          severity,
+          age,
+          gender,
+        }));
+        
+        sessionStorage.setItem("analysisResults", JSON.stringify(response));
+        
+        toast.success("Analysis complete!");
+        navigate("/results");
+      } else {
+        toast.error("Analysis failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Analysis error:", error);
+      toast.error(
+        error instanceof Error 
+          ? error.message 
+          : "Failed to analyze symptoms. Please ensure the backend server is running."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const availableSymptoms = commonSymptoms.filter((s) => !symptoms.includes(s));
