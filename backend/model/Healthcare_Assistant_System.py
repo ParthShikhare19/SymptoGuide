@@ -587,7 +587,7 @@ class HealthcareAssistant:
         return 'General Physician'
     
     def get_comprehensive_assessment(self, symptoms):
-        """Get complete assessment"""
+        """Get complete assessment with confidence warnings"""
         print(f"\n🔍 Processing {len(symptoms)} symptom(s)...")
         
         disease, confidence, top_3 = self.predict_disease(symptoms)
@@ -601,9 +601,23 @@ class HealthcareAssistant:
         diet = self.diets_map.get(disease.lower(), "Maintain a balanced diet")
         workout = self.workouts_map.get(disease.lower(), "Consult a doctor before exercising")
         
+        # Add confidence warning based on prediction confidence
+        confidence_warning = None
+        confidence_level = 'high'
+        if confidence < 0.3:
+            confidence_warning = "⚠️ Low confidence prediction. Please consult a doctor for accurate diagnosis."
+            confidence_level = 'low'
+        elif confidence < 0.5:
+            confidence_warning = "⚠️ Moderate confidence. Consider providing more symptoms for better accuracy."
+            confidence_level = 'moderate'
+        elif confidence < 0.7:
+            confidence_level = 'good'
+        
         return {
             'predicted_disease': disease,
             'confidence': confidence,
+            'confidence_level': confidence_level,
+            'confidence_warning': confidence_warning,
             'top_3_predictions': top_3,
             'severity_score': severity_score,
             'average_severity': avg_severity,
@@ -618,37 +632,56 @@ class HealthcareAssistant:
         }
     
     def save_model(self, filename=None):
-        """Save model"""
+        """Save model with all components for complete restoration"""
+        from datetime import datetime
+        
         if filename is None:
             filename = os.path.join(_SCRIPT_DIR, '..', 'healthcare_model.pkl')
         
-        # Calculate expected feature count
-        expected_n_features = len(self.all_symptoms_list) + 4  # +4 for extra features
+        # Ensure all_symptoms_list is a proper list
+        all_symptoms_list = self.all_symptoms_list if self.all_symptoms_list else sorted(list(self.all_symptoms))
+        
+        # Get expected features from model if available
+        expected_n_features = getattr(self.model, 'n_features_in_', len(all_symptoms_list))
         
         model_data = {
+            # Model components
             'model': self.model,
             'label_encoder': self.label_encoder,
             'scaler': self.scaler,
             'feature_engineer': self.feature_engineer,
+            
+            # Symptom data
             'all_symptoms': self.all_symptoms,
-            'all_symptoms_list': self.all_symptoms_list,
+            'all_symptoms_list': all_symptoms_list,
             'expected_n_features': expected_n_features,
+            'symptom_columns': self.symptom_columns,
+            
+            # Mappings
             'severity_map': self.severity_map,
             'description_map': self.description_map,
             'precautions_map': self.precautions_map,
             'medications_map': self.medications_map,
             'diets_map': self.diets_map,
             'workouts_map': self.workouts_map,
-            'symptom_columns': self.symptom_columns,
-            'disease_column': self.disease_column,
             'disease_symptom_map': self.disease_symptom_map,
             'symptom_disease_map': self.symptom_disease_map,
+            
+            # Metadata
+            'disease_column': self.disease_column,
+            'training_date': datetime.now().isoformat(),
+            'version': '2.0',
+            'total_diseases': len(set(self.label_encoder.classes_)) if hasattr(self.label_encoder, 'classes_') else 0,
+            'total_symptoms': len(all_symptoms_list),
         }
         
         with open(filename, 'wb') as f:
             pickle.dump(model_data, f)
         
         print(f"\n💾 Model saved to {filename}")
+        print(f"   Version: 2.0")
+        print(f"   Symptoms: {len(all_symptoms_list)}")
+        print(f"   Features: {expected_n_features}")
     
     def load_model(self, filename=None):
         """Load model"""
@@ -728,7 +761,11 @@ def print_assessment(assessment):
     print("="*80)
     
     print(f"\n🎯 PREDICTED DISEASE: {assessment['predicted_disease'].upper()}")
-    print(f"   Confidence: {assessment['confidence']:.1%}")
+    print(f"   Confidence: {assessment['confidence']:.1%} ({assessment.get('confidence_level', 'unknown')})")
+    
+    # Show confidence warning if present
+    if assessment.get('confidence_warning'):
+        print(f"\n{assessment['confidence_warning']}")
     
     print(f"\n📊 TOP 3 POSSIBLE CONDITIONS:")
     for i, (disease, prob) in enumerate(assessment['top_3_predictions'], 1):

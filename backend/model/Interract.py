@@ -1,5 +1,7 @@
 import os
 import sys
+import re
+import logging
 from string import punctuation
 
 # Add the current directory to Python path for local imports
@@ -12,6 +14,17 @@ import nltk
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(os.path.join(os.path.dirname(__file__), 'symptoguide.log')),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('SymptoGuide')
 
 # Download required NLTK data
 try:
@@ -29,6 +42,18 @@ wl = WordNetLemmatizer()
 
 # Comprehensive symptom dictionary for NLP matching
 SYMPTOM_PHRASES = {
+    # General illness indicators (user says they're unwell)
+    'not feeling well': ['malaise', 'fatigue', 'weakness'],
+    'not feeling good': ['malaise', 'fatigue', 'weakness'],
+    'feeling unwell': ['malaise', 'fatigue', 'weakness'],
+    'feel unwell': ['malaise', 'fatigue', 'weakness'],
+    'feeling sick': ['malaise', 'nausea', 'fatigue'],
+    'feel sick': ['malaise', 'nausea'],
+    'feeling ill': ['malaise', 'fatigue'],
+    'feel ill': ['malaise', 'fatigue'],
+    'feeling bad': ['malaise', 'fatigue'],
+    'under the weather': ['malaise', 'fatigue', 'cold'],
+    
     # Urinary symptoms
     'difficulty in urination': ['difficult_urination', 'painful_urination'],
     'difficulty urinating': ['difficult_urination', 'painful_urination'],
@@ -178,6 +203,69 @@ SYMPTOM_PHRASES = {
     'shivering': ['shivering', 'chills'],
     'night sweats': ['night_sweats'],
     'dehydration': ['dehydration'],
+    
+    # Additional natural expressions
+    'my head hurts': ['headache'],
+    'head is pounding': ['headache', 'severe_headache'],
+    'splitting headache': ['severe_headache'],
+    'tummy ache': ['stomach_pain', 'abdominal_pain'],
+    'upset stomach': ['stomach_pain', 'nausea', 'indigestion'],
+    'stomach upset': ['stomach_pain', 'nausea'],
+    'running a fever': ['fever'],
+    'burning up': ['high_fever'],
+    'feel feverish': ['fever'],
+    'feel like vomiting': ['nausea'],
+    'feel nauseous': ['nausea'],
+    'out of breath': ['shortness_of_breath'],
+    'gasping for air': ['breathlessness'],
+    'trouble breathing': ['breathlessness'],
+    'feeling weak': ['weakness', 'fatigue'],
+    'no strength': ['weakness'],
+    'body feels weak': ['weakness', 'fatigue'],
+    'skin is itchy': ['itching'],
+    'scratching a lot': ['itching'],
+    'itchy all over': ['itching'],
+    'feeling numb': ['numbness'],
+    'pins and needles': ['tingling'],
+    'tingling sensation': ['tingling'],
+    'cant eat': ['loss_of_appetite'],
+    'dont feel like eating': ['loss_of_appetite'],
+    'no appetite': ['loss_of_appetite'],
+    'peeing a lot': ['frequent_urination'],
+    'going to bathroom frequently': ['frequent_urination'],
+    'burning when i pee': ['burning_micturition'],
+    'seeing double': ['blurred_vision'],
+    'vision is blurry': ['blurred_vision'],
+    'eyes are blurry': ['blurred_vision'],
+    'feeling cold': ['chills'],
+    'getting chills': ['chills'],
+    'body shaking': ['shivering'],
+    'yellow eyes': ['yellowing_of_eyes', 'jaundice'],
+    'skin turning yellow': ['yellowish_skin', 'jaundice'],
+    'swollen legs': ['swelling_of_legs', 'swelling'],
+    'feet are swollen': ['swelling_of_legs', 'swelling'],
+    'face is puffy': ['puffy_face', 'swelling'],
+    'muscle cramps': ['muscle_cramps', 'cramps'],
+    'leg cramps': ['cramps', 'muscle_cramps'],
+    'feeling faint': ['dizziness', 'fainting'],
+    'about to faint': ['dizziness', 'fainting'],
+    'passed out': ['fainting', 'loss_of_consciousness'],
+    'memory problems': ['memory_loss'],
+    'cant remember': ['memory_loss'],
+    'forgetful': ['memory_loss'],
+    'trouble sleeping': ['insomnia', 'sleeplessness'],
+    'cant fall asleep': ['insomnia'],
+    'waking up at night': ['insomnia'],
+    'sleeping too much': ['excessive_sleep', 'fatigue'],
+    'always sleepy': ['fatigue', 'lethargy'],
+    'feeling restless': ['restlessness', 'anxiety'],
+    'cant sit still': ['restlessness'],
+    'heart beating fast': ['palpitations', 'fast_heart_rate'],
+    'heart pounding': ['palpitations'],
+    'irregular heartbeat': ['irregular_heartbeat', 'palpitations'],
+    'chest tightness': ['chest_pain', 'chest_tightness'],
+    'pressure in chest': ['chest_pain'],
+    'burning in chest': ['heartburn', 'chest_pain'],
 }
 
 # Single word symptom mapping
@@ -218,33 +306,90 @@ class SymptomExtractor:
         self.stop_words = set(stopwords.words('english'))
         self.lemmatizer = WordNetLemmatizer()
         
+        # Phrases that indicate user IS sick (even though they contain "well/fine/good")
+        self.sick_indicator_phrases = [
+            'not feeling well', 'not feeling good', 'not feeling fine',
+            'not feeling okay', 'not feeling ok', 'dont feel well',
+            "don't feel well", 'dont feel good', "don't feel good",
+            'not well', 'not good', 'not fine', 'not okay',
+            'feeling unwell', 'feel unwell', 'feeling sick', 'feel sick',
+            'feeling bad', 'feel bad', 'feeling ill', 'feel ill',
+            'feeling terrible', 'feeling awful', 'feeling worse',
+            'something wrong', 'something is wrong', 'not right',
+            'under the weather', 'came down with'
+        ]
+        
         # Phrases that indicate NO symptoms - should return empty
+        # These should ONLY match if not preceded by negation
         self.no_symptom_phrases = [
-            'no symptom', 'no symptoms', 'feeling well', 'feel well', 'feeling fine',
-            'feel fine', 'feeling good', 'feel good', 'feeling okay', 'feel okay',
-            'feeling ok', 'feel ok', 'i am fine', 'i am well', 'i am good',
+            'no symptom', 'no symptoms', 'i am fine', 'i am well', 'i am good',
             'i am okay', 'i am ok', 'nothing wrong', 'no problem', 'no issues',
-            'healthy', 'all good', 'doing well', 'doing fine', 'doing good',
-            'not sick', 'no pain', 'no discomfort'
+            'all good', 'doing well', 'doing fine', 'doing good',
+            'not sick', 'no pain', 'no discomfort', 'perfectly fine',
+            'completely fine', 'totally fine', 'absolutely fine',
+            'feeling well', 'feeling good', 'feeling fine', 'feeling great',
+            'feeling okay', 'feeling ok', 'feeling healthy', 'feeling better',
+            'feel well', 'feel good', 'feel fine', 'feel great', 'feel okay',
+            'i feel well', 'i feel good', 'i feel fine', 'i feel great',
+            'im fine', "i'm fine", 'im good', "i'm good", 'im okay', "i'm okay",
+            'im well', "i'm well", 'healthy', 'just checking', 'just testing'
         ]
         
         # Words that should NOT trigger symptom matching
         self.blacklist_words = {
-            'well', 'good', 'fine', 'okay', 'ok', 'no', 'not', 'none', 'nothing',
+            'well', 'good', 'fine', 'okay', 'ok', 'none', 'nothing',
             'healthy', 'normal', 'feeling', 'feel', 'am', 'is', 'are', 'was',
             'have', 'has', 'had', 'the', 'a', 'an', 'i', 'my', 'me', 'symptoms'
         }
+    
+    def _sanitize_input(self, user_input):
+        """Sanitize and clean user input"""
+        # Convert to lowercase and strip whitespace
+        text = user_input.lower().strip()
+        
+        # Remove extra whitespace
+        text = ' '.join(text.split())
+        
+        # Remove special characters except basic punctuation and hyphens
+        text = re.sub(r'[^\w\s\'\-,.]', ' ', text)
+        
+        # Remove multiple spaces
+        text = re.sub(r'\s+', ' ', text)
+        
+        return text.strip()
+    
+    def _check_is_user_healthy(self, user_input):
+        """Check if user is indicating they have NO symptoms"""
+        # First check if user is saying they ARE sick (takes priority)
+        for phrase in self.sick_indicator_phrases:
+            if phrase in user_input:
+                logger.debug(f"User indicated they ARE sick: '{phrase}' found")
+                return False  # User is NOT healthy, they are sick
+        
+        # Now check if user is saying they have no symptoms
+        for phrase in self.no_symptom_phrases:
+            if phrase in user_input:
+                logger.info(f"User indicated no symptoms: '{phrase}' found in input")
+                return True  # User IS healthy, no symptoms
+        
+        return False  # Default: user might have symptoms, continue processing
         
     def extract_symptoms(self, user_input):
         """Extract symptoms from user's natural language input"""
-        user_input = user_input.lower().strip()
+        # Sanitize input first
+        user_input = self._sanitize_input(user_input)
+        
+        # Check minimum length
+        if len(user_input) < 3:
+            logger.debug(f"Input too short: {user_input}")
+            return [], []
+        
         extracted_symptoms = set()
         matched_phrases = []
         
-        # Check for "no symptoms" type phrases first
-        for phrase in self.no_symptom_phrases:
-            if phrase in user_input:
-                return [], []  # Return empty - user has no symptoms
+        # Check if user is indicating they are healthy (no symptoms)
+        if self._check_is_user_healthy(user_input):
+            return [], []  # Return empty - user has no symptoms
         
         # 1. First try exact phrase matching (most accurate)
         for phrase, symptoms in SYMPTOM_PHRASES.items():
@@ -416,6 +561,24 @@ def interactive_session():
             print("   2. Be specific (e.g., 'burning urination' not just 'pain')")
             print("   3. Mention multiple symptoms if you have them")
             continue
+        
+        # Check if user indicated they are healthy (before extracting symptoms)
+        if extractor._check_is_user_healthy(extractor._sanitize_input(user_input)):
+            print("\n" + "=" * 80)
+            print("🎉 GREAT NEWS!")
+            print("=" * 80)
+            print("\n😊 You seem to be feeling well! That's wonderful to hear!")
+            print("\n💚 Stay healthy with these tips:")
+            print("   • Get 7-8 hours of quality sleep")
+            print("   • Stay hydrated - drink plenty of water")
+            print("   • Eat a balanced diet with fruits and vegetables")
+            print("   • Exercise regularly - at least 30 minutes a day")
+            print("   • Manage stress through meditation or hobbies")
+            print("   • Keep up with regular health check-ups")
+            print("\n" + "=" * 80)
+            print("👋 Thank you for using SymptoGuide. Stay healthy!")
+            print("=" * 80)
+            break
         
         # Extract symptoms
         symptoms, matched_phrases = extractor.extract_symptoms(user_input)

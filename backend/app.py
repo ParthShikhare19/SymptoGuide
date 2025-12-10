@@ -7,29 +7,53 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sys
 import os
+import logging
+from datetime import datetime
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(os.path.join(os.path.dirname(__file__), 'api_server.log')),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('SymptoGuide.API')
 
 # Add the current directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from model.Healthcare_Assistant_System import HealthcareAssistant
-from model.Interract import extract_symptoms_from_text, SYMPTOM_KEYWORDS
+from model.Interract import SymptomExtractor, SYMPTOM_PHRASES, SINGLE_WORD_SYMPTOMS
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Initialize the healthcare assistant
 assistant = None
+symptom_extractor = None
 
 def initialize_assistant():
     """Initialize and load the ML model"""
-    global assistant
+    global assistant, symptom_extractor
     try:
+        logger.info("Initializing Healthcare Assistant...")
         assistant = HealthcareAssistant()
         assistant.load_model()
-        print(f"✅ Model loaded successfully with {len(assistant.all_symptoms)} symptoms")
+        
+        # Initialize symptom extractor with known symptoms
+        symptom_extractor = SymptomExtractor(assistant.all_symptoms)
+        
+        logger.info(f"✅ Model loaded successfully with {len(assistant.all_symptoms)} symptoms")
         return True
+    except FileNotFoundError as e:
+        logger.error(f"❌ Model file not found: {e}")
+        return False
     except Exception as e:
-        print(f"❌ Error loading model: {e}")
+        logger.error(f"❌ Error loading model: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 @app.route('/api/health', methods=['GET'])
@@ -37,14 +61,16 @@ def health_check():
     """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
-        'model_loaded': assistant is not None
+        'model_loaded': assistant is not None,
+        'timestamp': datetime.now().isoformat()
     })
 
 @app.route('/api/symptoms', methods=['GET'])
 def get_all_symptoms():
     """Get all available symptoms in the system"""
     if not assistant:
-        return jsonify({'error': 'Model not loaded'}), 500
+        logger.warning("API called but model not loaded")
+        return jsonify({'error': 'Model not loaded', 'message': 'Please wait for model initialization'}), 503
     
     # Convert symptoms to readable format
     symptoms_list = sorted([
@@ -53,6 +79,7 @@ def get_all_symptoms():
     ])
     
     return jsonify({
+        'success': True,
         'symptoms': symptoms_list,
         'total': len(symptoms_list)
     })
@@ -60,11 +87,17 @@ def get_all_symptoms():
 @app.route('/api/symptom-keywords', methods=['GET'])
 def get_symptom_keywords():
     """Get symptom keywords for NLP matching"""
-    # Get unique base symptoms from SYMPTOM_KEYWORDS
-    keywords = list(SYMPTOM_KEYWORDS.keys())
+    # Get unique base symptoms from phrase and single word mappings
+    phrases = list(SYMPTOM_PHRASES.keys())
+    single_words = list(SINGLE_WORD_SYMPTOMS.keys())
+    all_keywords = sorted(set(phrases + single_words))
+    
     return jsonify({
-        'keywords': sorted([kw.replace('_', ' ').title() for kw in keywords]),
-        'total': len(keywords)
+        'success': True,
+        'keywords': [kw.replace('_', ' ').title() for kw in all_keywords],
+        'phrases': phrases,
+        'single_words': single_words,
+        'total': len(all_keywords)
     })
 
 @app.route('/api/analyze', methods=['POST'])
@@ -83,35 +116,57 @@ def analyze_symptoms():
     }
     """
     if not assistant:
-        return jsonify({'error': 'Model not initialized'}), 500
+        logger.error("Analyze called but model not initialized")
+        return jsonify({'error': 'Model not initialized', 'message': 'Please wait for model initialization'}), 503
     
     try:
         data = request.get_json()
         
         if not data:
-            return jsonify({'error': 'No data provided'}), 400
+            logger.warning("No data provided in request")
+            return jsonify({'error': 'No data provided', 'message': 'Please provide symptoms data'}), 400
         
         # Extract symptoms
         symptoms = data.get('symptoms', [])
         description = data.get('description', '')
         
+        # Validate input
+        if not symptoms and not description:
+            return jsonify({
+                'success': False,
+                'error': 'No symptoms provided',
+                'message': 'Please provide at least one symptom or description'
+            }), 400
+        
         # Process symptoms list
         processed_symptoms = []
         for symptom in symptoms:
             # Convert to lowercase and replace spaces with underscores
-            processed_symptom = symptom.lower().replace(' ', '_')
-            processed_symptoms.append(processed_symptom)
+            processed_symptom = symptom.lower().strip().replace(' ', '_')
+            if processed_symptom:
+                processed_symptoms.append(processed_symptom)
         
         # If description provided, extract additional symptoms using NLP
-        if description:
-            nlp_symptoms = extract_symptoms_from_text(description, assistant.all_symptoms)
+        if description and symptom_extractor:
+            nlp_symptoms, _ = symptom_extractor.extract_symptoms(description)
             # Merge with existing symptoms
             for sym in nlp_symptoms:
                 if sym not in processed_symptoms:
                     processed_symptoms.append(sym)
         
         if not processed_symptoms:
-            return jsonify({'error': 'No valid symptoms provided'}), 400
+            return jsonify({
+                'success': False,
+                'error': 'No valid symptoms identified',
+                'message': 'Could not identify any symptoms from your input. Please try being more specific.',
+                'suggestions': [
+                    'Try describing specific symptoms like "fever", "headache", "cough"',
+                    'Example: "I have a fever and headache"',
+                    'Example: "stomach pain with nausea"'
+                ]
+            }), 400
+        
+        logger.info(f"Processing symptoms: {processed_symptoms}")
         
         # Get comprehensive assessment
         assessment = assistant.get_comprehensive_assessment(processed_symptoms)
@@ -119,6 +174,7 @@ def analyze_symptoms():
         # Add input metadata to response
         assessment['input'] = {
             'symptoms': symptoms,
+            'processed_symptoms': processed_symptoms,
             'description': description,
             'age': data.get('age'),
             'gender': data.get('gender'),
@@ -132,6 +188,8 @@ def analyze_symptoms():
             'prediction': {
                 'disease': assessment['predicted_disease'],
                 'confidence': float(assessment['confidence']),
+                'confidence_level': assessment.get('confidence_level', 'unknown'),
+                'confidence_warning': assessment.get('confidence_warning'),
                 'alternatives': [
                     {
                         'disease': disease,
@@ -157,19 +215,21 @@ def analyze_symptoms():
             'input_metadata': assessment['input']
         }
         
+        logger.info(f"Analysis complete: {assessment['predicted_disease']} ({assessment['confidence']:.2%})")
         return jsonify(response)
     
     except Exception as e:
-        print(f"Error during analysis: {e}")
+        logger.error(f"Error during analysis: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({
             'success': False,
-            'error': f'Analysis failed: {str(e)}'
+            'error': 'Analysis failed',
+            'message': str(e)
         }), 500
 
 @app.route('/api/extract-symptoms', methods=['POST'])
-def extract_symptoms():
+def extract_symptoms_endpoint():
     """
     Extract symptoms from natural language text
     
@@ -178,18 +238,34 @@ def extract_symptoms():
         "text": "I have a headache and feeling very tired"
     }
     """
-    if not assistant:
-        return jsonify({'error': 'Model not initialized'}), 500
+    if not assistant or not symptom_extractor:
+        logger.error("Extract symptoms called but model not initialized")
+        return jsonify({'error': 'Model not initialized', 'message': 'Please wait for model initialization'}), 503
     
     try:
         data = request.get_json()
-        text = data.get('text', '')
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        text = data.get('text', '').strip()
         
         if not text:
-            return jsonify({'error': 'No text provided'}), 400
+            return jsonify({
+                'success': False,
+                'error': 'No text provided',
+                'message': 'Please provide text to analyze'
+            }), 400
+        
+        if len(text) < 3:
+            return jsonify({
+                'success': False,
+                'error': 'Text too short',
+                'message': 'Please provide a longer description'
+            }), 400
         
         # Extract symptoms using NLP
-        symptoms = extract_symptoms_from_text(text, assistant.all_symptoms)
+        symptoms, matched_phrases = symptom_extractor.extract_symptoms(text)
         
         # Convert to readable format
         readable_symptoms = [
@@ -197,27 +273,49 @@ def extract_symptoms():
             for symptom in symptoms
         ]
         
+        logger.info(f"Extracted {len(symptoms)} symptoms from: '{text[:50]}...'")
+        
         return jsonify({
             'success': True,
             'extracted_symptoms': readable_symptoms,
             'raw_symptoms': symptoms,
-            'total': len(symptoms)
+            'matched_phrases': matched_phrases,
+            'total': len(symptoms),
+            'message': 'No symptoms identified' if not symptoms else None
         })
     
     except Exception as e:
-        print(f"Error extracting symptoms: {e}")
+        logger.error(f"Error extracting symptoms: {e}")
         return jsonify({
             'success': False,
-            'error': f'Extraction failed: {str(e)}'
+            'error': 'Extraction failed',
+            'message': str(e)
         }), 500
 
 @app.errorhandler(404)
 def not_found(error):
-    return jsonify({'error': 'Endpoint not found'}), 404
+    return jsonify({
+        'success': False,
+        'error': 'Endpoint not found',
+        'message': 'The requested endpoint does not exist'
+    }), 404
 
 @app.errorhandler(500)
 def internal_error(error):
-    return jsonify({'error': 'Internal server error'}), 500
+    logger.error(f"Internal server error: {error}")
+    return jsonify({
+        'success': False,
+        'error': 'Internal server error',
+        'message': 'An unexpected error occurred'
+    }), 500
+
+@app.errorhandler(503)
+def service_unavailable(error):
+    return jsonify({
+        'success': False,
+        'error': 'Service unavailable',
+        'message': 'Model is still loading, please try again in a moment'
+    }), 503
 
 if __name__ == '__main__':
     print("="*80)
