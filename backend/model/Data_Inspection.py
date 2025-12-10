@@ -2,11 +2,14 @@ import pandas as pd
 import os
 from pathlib import Path
 
+# Get the directory where this script is located
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 def inspect_all_datasets():
     """Inspect all CSV files in the workspace"""
     
-    # Base path for raw data
-    raw_data_base = "../data/raw_data"
+    # Base path for raw data - using absolute path based on script location
+    raw_data_base = os.path.join(_SCRIPT_DIR, "..", "data", "raw_data")
     
     datasets = {
         'raw_data': [
@@ -52,9 +55,9 @@ def inspect_all_datasets():
         for file in files:
             try:
                 if folder == 'raw_data':
-                    filepath = os.path.join("../data/raw_data", file)
+                    filepath = os.path.join(_SCRIPT_DIR, "..", "data", "raw_data", file)
                 else:
-                    filepath = os.path.join("../data", folder, file)
+                    filepath = os.path.join(_SCRIPT_DIR, "..", "data", folder, file)
                 
                 if os.path.exists(filepath):
                     df = pd.read_csv(filepath)

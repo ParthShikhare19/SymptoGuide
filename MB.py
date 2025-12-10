@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from sklearn.naive_bayes import MultinomialNB
 from nltk import word_tokenize
@@ -6,7 +7,19 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-data=pd.read_csv("Code_5.csv")
+# Get the directory where this script is located
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Note: This script requires a CSV file with 'review' and 'result' columns
+# The file 'Code_5.csv' should be placed in the same directory as this script
+csv_path = os.path.join(_SCRIPT_DIR, "Code_5.csv")
+
+if not os.path.exists(csv_path):
+    print(f"Error: File not found: {csv_path}")
+    print("Please ensure 'Code_5.csv' exists with 'review' and 'result' columns.")
+    exit(1)
+
+data=pd.read_csv(csv_path)
 print(data.isnull().sum())
 
 wl=WordNetLemmatizer()

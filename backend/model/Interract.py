@@ -1,6 +1,12 @@
 import pickle
 import re
+import sys
+import os
 from string import punctuation
+
+# Add the current directory to Python path for local imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from Healthcare_Assistant_System import HealthcareAssistant, print_assessment
 
 # Import NLP libraries
@@ -233,7 +239,8 @@ def main():
     assistant = HealthcareAssistant()
     
     try:
-        assistant.load_model('../healthcare_model.pkl')
+        # Use default path (relative to Healthcare_Assistant_System.py location)
+        assistant.load_model()
         known_symptoms = assistant.all_symptoms
         print(f"✅ System loaded with {len(known_symptoms)} known symptoms.\n")
     except FileNotFoundError:

@@ -6,8 +6,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 import pickle
 import os
+import sys
 import warnings
 warnings.filterwarnings('ignore')
+
+# Get the directory where this script is located
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class HealthcareAssistant:
     def __init__(self):
@@ -26,8 +30,8 @@ class HealthcareAssistant:
         
     def load_cleaned_data(self):
         """Load all cleaned datasets"""
-        # Path relative to model/ folder
-        folder = "../data/cleaned_datasets"
+        # Path relative to model/ folder - using absolute path based on script location
+        folder = os.path.join(_SCRIPT_DIR, "..", "data", "cleaned_datasets")
         
         print("📂 Loading cleaned datasets...")
         
@@ -452,8 +456,13 @@ class HealthcareAssistant:
         
         return assessment
     
-    def save_model(self, filename='../healthcare_model.pkl'):
+    def save_model(self, filename=None):
         """Save trained model and mappings"""
+        if filename is None:
+            filename = os.path.join(_SCRIPT_DIR, '..', 'healthcare_model.pkl')
+        elif not os.path.isabs(filename):
+            filename = os.path.join(_SCRIPT_DIR, filename)
+            
         model_data = {
             'model': self.model,
             'label_encoder': self.label_encoder,
@@ -473,8 +482,13 @@ class HealthcareAssistant:
         
         print(f"\n💾 Model saved to {filename}")
     
-    def load_model(self, filename='../healthcare_model.pkl'):
+    def load_model(self, filename=None):
         """Load trained model and mappings"""
+        if filename is None:
+            filename = os.path.join(_SCRIPT_DIR, '..', 'healthcare_model.pkl')
+        elif not os.path.isabs(filename):
+            filename = os.path.join(_SCRIPT_DIR, filename)
+            
         with open(filename, 'rb') as f:
             model_data = pickle.load(f)
         
