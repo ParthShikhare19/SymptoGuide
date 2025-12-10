@@ -34,10 +34,13 @@ const SymptomChecker = () => {
   const [severity, setSeverity] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
+  const [medicalHistory, setMedicalHistory] = useState("");
+  const [currentMedications, setCurrentMedications] = useState("");
+  const [allergies, setAllergies] = useState("");
   const [followUpQuestions, setFollowUpQuestions] = useState<Array<{question: string; type: 'yesno' | 'scale' | 'text' | 'choice'; options?: string[]; answer: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const totalSteps = 5;
+  const totalSteps = 6;
 
   const addSymptom = (symptom: string) => {
     if (!symptoms.includes(symptom) && symptoms.length < 10) {
@@ -165,6 +168,13 @@ const SymptomChecker = () => {
           gender,
           duration,
           severity,
+          medicalHistory,
+          currentMedications,
+          allergies,
+          followUpAnswers: followUpQuestions.reduce((acc, q) => {
+            if (q.answer) acc[q.question] = q.answer;
+            return acc;
+          }, {} as Record<string, string>),
         });
 
         if (response.success) {
@@ -175,6 +185,13 @@ const SymptomChecker = () => {
             severity,
             age,
             gender,
+            medicalHistory,
+            currentMedications,
+            allergies,
+            followUpAnswers: followUpQuestions.reduce((acc, q) => {
+              if (q.answer) acc[q.question] = q.answer;
+              return acc;
+            }, {} as Record<string, string>),
           }));
           
           sessionStorage.setItem("analysisResults", JSON.stringify(response));
@@ -255,7 +272,7 @@ const SymptomChecker = () => {
           {/* Progress Indicator */}
           <div className="max-w-3xl mx-auto mb-8">
             <div className="flex items-center justify-between">
-              {[1, 2, 3, 4, 5].map((step) => (
+              {[1, 2, 3, 4, 5, 6].map((step) => (
                 <div key={step} className="flex items-center flex-1 last:flex-none">
                   <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
                     step < currentStep 
@@ -270,7 +287,7 @@ const SymptomChecker = () => {
                       <span className="text-sm font-semibold">{step}</span>
                     )}
                   </div>
-                  {step < 5 && (
+                  {step < 6 && (
                     <div className={`h-0.5 flex-1 mx-2 transition-all ${
                       step < currentStep ? 'bg-primary' : 'bg-border'
                     }`} />
@@ -283,6 +300,7 @@ const SymptomChecker = () => {
               <span>Severity</span>
               <span>Details</span>
               <span>Questions</span>
+              <span>Medical</span>
               <span>Personal</span>
             </div>
           </div>
@@ -596,16 +614,80 @@ const SymptomChecker = () => {
               </Card>
             )}
 
-            {/* Step 5: Personal Info & Submit */}
+            {/* Step 5: Medical History */}
             {currentStep === 5 && (
               <Card className="healthcare-card animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <User className="h-6 w-6 text-primary" />
-                    Optional Personal Information
+                    <Activity className="h-6 w-6 text-primary" />
+                    Medical History
                   </CardTitle>
                   <CardDescription>
-                    Age and gender help provide more personalized recommendations
+                    This information helps provide more accurate recommendations (optional)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">
+                      Current Medications
+                    </Label>
+                    <Textarea
+                      placeholder="List any medications you're currently taking..."
+                      value={currentMedications}
+                      onChange={(e) => setCurrentMedications(e.target.value)}
+                      className="min-h-[80px] resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">
+                      Known Allergies
+                    </Label>
+                    <Textarea
+                      placeholder="List any allergies you have (medications, food, etc.)..."
+                      value={allergies}
+                      onChange={(e) => setAllergies(e.target.value)}
+                      className="min-h-[80px] resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">
+                      Relevant Medical History
+                    </Label>
+                    <Textarea
+                      placeholder="Any chronic conditions, past surgeries, or relevant medical history..."
+                      value={medicalHistory}
+                      onChange={(e) => setMedicalHistory(e.target.value)}
+                      className="min-h-[100px] resize-none"
+                    />
+                  </div>
+
+                  {/* Navigation */}
+                  <div className="flex justify-between pt-4">
+                    <Button onClick={prevStep} variant="outline" size="lg" className="gap-2">
+                      <ArrowLeft className="h-4 w-4" />
+                      Back
+                    </Button>
+                    <Button onClick={nextStep} size="lg" className="gap-2">
+                      Continue
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 6: Personal Info & Submit */}
+            {currentStep === 6 && (
+              <Card className="healthcare-card animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-6 w-6 text-primary" />
+                    Personal Information & Review
+                  </CardTitle>
+                  <CardDescription>
+                    Final details to complete your health assessment
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -639,11 +721,32 @@ const SymptomChecker = () => {
 
                   {/* Summary */}
                   <div className="p-4 bg-secondary/50 rounded-xl space-y-2">
-                    <h4 className="font-semibold text-sm">Assessment Summary</h4>
-                    <div className="text-sm space-y-1">
-                      <p><strong>Symptoms:</strong> {symptoms.length} selected</p>
-                      <p><strong>Severity:</strong> {severity || 'Not specified'}</p>
-                      <p><strong>Duration:</strong> {duration || 'Not specified'}</p>
+                    <h4 className="font-semibold text-sm mb-3">Assessment Summary</h4>
+                    <div className="text-sm space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Symptoms:</span>
+                        <span className="font-medium">{symptoms.length} selected</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Severity:</span>
+                        <span className="font-medium capitalize">{severity || 'Not specified'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Duration:</span>
+                        <span className="font-medium">{duration || 'Not specified'}</span>
+                      </div>
+                      {followUpQuestions.filter(q => q.answer).length > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Questions answered:</span>
+                          <span className="font-medium">{followUpQuestions.filter(q => q.answer).length}/{followUpQuestions.length}</span>
+                        </div>
+                      )}
+                      {(currentMedications || allergies || medicalHistory) && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Medical history:</span>
+                          <span className="font-medium text-green-600">✓ Provided</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -675,7 +778,7 @@ const SymptomChecker = () => {
                       disabled={isLoading}
                     >
                       <ArrowLeft className="h-4 w-4 mr-2" />
-                      Back to Questions
+                      Back to Medical History
                     </Button>
                     <p className="text-center text-xs text-muted-foreground">
                       Your information is secure and will not be stored or shared.

@@ -16,6 +16,10 @@ export interface SymptomAnalysisRequest {
   gender?: string;
   duration?: string;
   severity?: string;
+  medicalHistory?: string;
+  currentMedications?: string;
+  allergies?: string;
+  followUpAnswers?: Record<string, string>;
 }
 
 export interface DiseaseAlt {
