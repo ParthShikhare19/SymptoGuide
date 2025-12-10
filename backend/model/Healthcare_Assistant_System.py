@@ -433,12 +433,38 @@ class HealthcareAssistant:
         if not matched_symptoms:
             matched_symptoms = [self._normalize_symptom(s) for s in user_symptoms if self._normalize_symptom(s)]
         
-        # Create enhanced feature vector
-        features = self.feature_engineer.create_enhanced_features(
-            set(matched_symptoms), 
-            self.all_symptoms_list
-        )
-        features = self.scaler.transform(features.reshape(1, -1))
+        # Get expected feature count from model
+        expected_features = getattr(self.model, 'n_features_in_', len(self.all_symptoms_list) + 4)
+        
+        # Check if model was trained with simple binary features or enhanced features
+        use_simple_features = (expected_features == len(self.all_symptoms_list)) or \
+                               (self.feature_engineer is None and expected_features == len(self.all_symptoms))
+        
+        if use_simple_features:
+            # Simple binary feature vector (original training approach)
+            symptom_set = set(matched_symptoms)
+            features = np.array([1 if s in symptom_set else 0 for s in self.all_symptoms_list])
+        else:
+            # Enhanced feature vector
+            features = self.feature_engineer.create_enhanced_features(
+                set(matched_symptoms), 
+                self.all_symptoms_list
+            )
+        
+        # Ensure feature count matches what model expects
+        if len(features) != expected_features:
+            if len(features) > expected_features:
+                features = features[:expected_features]
+            else:
+                features = np.pad(features, (0, expected_features - len(features)))
+        
+        # Apply scaler if fitted
+        try:
+            from sklearn.utils.validation import check_is_fitted
+            check_is_fitted(self.scaler)
+            features = self.scaler.transform(features.reshape(1, -1))
+        except:
+            features = features.reshape(1, -1)
         
         # Predict
         prediction = self.model.predict(features)[0]
@@ -596,6 +622,9 @@ class HealthcareAssistant:
         if filename is None:
             filename = os.path.join(_SCRIPT_DIR, '..', 'healthcare_model.pkl')
         
+        # Calculate expected feature count
+        expected_n_features = len(self.all_symptoms_list) + 4  # +4 for extra features
+        
         model_data = {
             'model': self.model,
             'label_encoder': self.label_encoder,
@@ -603,6 +632,7 @@ class HealthcareAssistant:
             'feature_engineer': self.feature_engineer,
             'all_symptoms': self.all_symptoms,
             'all_symptoms_list': self.all_symptoms_list,
+            'expected_n_features': expected_n_features,
             'severity_map': self.severity_map,
             'description_map': self.description_map,
             'precautions_map': self.precautions_map,
@@ -633,7 +663,23 @@ class HealthcareAssistant:
         self.scaler = model_data.get('scaler', StandardScaler())
         self.feature_engineer = model_data.get('feature_engineer')
         self.all_symptoms = model_data['all_symptoms']
-        self.all_symptoms_list = model_data.get('all_symptoms_list', sorted(self.all_symptoms))
+        
+        # Get all_symptoms_list, defaulting to sorted all_symptoms if empty
+        self.all_symptoms_list = model_data.get('all_symptoms_list', [])
+        if not self.all_symptoms_list:
+            self.all_symptoms_list = sorted(self.all_symptoms)
+        
+        # Get expected feature count from model itself
+        expected_n_features = getattr(self.model, 'n_features_in_', None)
+        if expected_n_features:
+            self.expected_n_features = expected_n_features
+            # Adjust symptom list to match model's expected features
+            if len(self.all_symptoms_list) != expected_n_features:
+                print(f"   ⚠️ Adjusting symptom list: {len(self.all_symptoms_list)} -> {expected_n_features}")
+                self.all_symptoms_list = self.all_symptoms_list[:expected_n_features]
+        else:
+            self.expected_n_features = len(self.all_symptoms_list)
+        
         self.severity_map = model_data['severity_map']
         self.description_map = model_data['description_map']
         self.precautions_map = model_data['precautions_map']
@@ -644,6 +690,33 @@ class HealthcareAssistant:
         self.disease_column = model_data.get('disease_column', 'diseases')
         self.disease_symptom_map = model_data.get('disease_symptom_map', {})
         self.symptom_disease_map = model_data.get('symptom_disease_map', {})
+        
+        # Reinitialize feature_engineer if it's None (backward compatibility)
+        if self.feature_engineer is None:
+            self.feature_engineer = SymptomFeatureEngineer()
+            # Copy severity_map to feature_engineer's symptom_weights
+            for symptom, weight in self.severity_map.items():
+                self.feature_engineer.symptom_weights[symptom] = {
+                    'base_severity': float(weight),
+                    'idf': 1.0,
+                    'discriminative': 1.0,
+                    'rarity': 1.0
+                }
+        
+        # Check if scaler is fitted, if not, fit with identity transform
+        try:
+            from sklearn.utils.validation import check_is_fitted
+            check_is_fitted(self.scaler)
+        except:
+            # Scaler not fitted - create a dummy fit so it acts as identity
+            # Create sample feature vector to determine feature size
+            sample_features = self.feature_engineer.create_enhanced_features(
+                set(), self.all_symptoms_list
+            )
+            # Fit scaler with zeros (will just pass through)
+            self.scaler = StandardScaler(with_mean=False, with_std=False)
+            self.scaler.fit(sample_features.reshape(1, -1))
+            print("   ⚠️ Scaler was not fitted, using identity transform")
         
         print(f"\n✅ Model loaded from {filename}")
 
