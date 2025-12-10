@@ -1,0 +1,15 @@
+2025-12-10 16:19:05,911 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.41.192:5000
+2025-12-10 16:19:05,911 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-12-10 16:19:05,922 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-12-10 16:19:07,431 - werkzeug - WARNING -  * Debugger is active!
+2025-12-10 16:19:07,435 - werkzeug - INFO -  * Debugger PIN: 136-934-641
+2025-12-10 16:20:06,185 - werkzeug - INFO -  * Detected change in 'D:\\Hackathons\\SymptoGuide\\backend\\model\\Data_Inspection.py', reloading
+2025-12-10 16:20:06,187 - werkzeug - INFO -  * Detected change in 'D:\\Hackathons\\SymptoGuide\\backend\\model\\Data_Inspection.py', reloading
+2025-12-10 16:20:07,040 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-12-10 16:20:13,384 - werkzeug - WARNING -  * Debugger is active!
+2025-12-10 16:20:13,397 - werkzeug - INFO -  * Debugger PIN: 136-934-641
+2025-12-10 16:20:24,513 - werkzeug - INFO -  * Detected change in 'D:\\Hackathons\\SymptoGuide\\backend\\model\\test_complex_cases.py', reloading
+2025-12-10 16:20:25,732 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
