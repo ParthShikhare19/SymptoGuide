@@ -1,0 +1,101 @@
+Disease,Precaution_1,Precaution_2,Precaution_3,Precaution_4,Disease_clean
+Panic disorder,Practice deep breathing,Avoid caffeine,Follow therapy plan,Seek support from loved ones,panic disorder
+Vaginitis,Wear breathable cotton underwear,Avoid douching,Maintain genital hygiene,Avoid scented hygiene products,vaginitis
+Problem during pregnancy,Attend regular prenatal visits,Avoid alcohol and smoking,Eat a balanced diet,Get adequate rest,problem pregnancy
+Acute pancreatitis,Avoid alcohol,Eat a low-fat diet,Stay hydrated,Follow doctor's advice strictly,acute pancreatitis
+Asthma,Avoid known triggers,Use inhaler as prescribed,Monitor peak flow,Keep emergency inhaler handy,asthma
+Infectious gastroenteritis,Wash hands frequently,Avoid sharing utensils,Drink clean water,Avoid street food,infectious gastroenteritis
+Acute sinusitis,Use nasal saline spray,Stay hydrated,Avoid allergens,Use warm compresses,acute sinusitis
+Cornea infection,Avoid touching eyes,Use prescribed eye drops,Wear sunglasses,Don’t share towels or cosmetics,cornea infection
+Marijuana abuse,Avoid peer pressure,Seek counseling,Build healthy habits,Avoid triggering environments,marijuana abuse
+Bursitis,Rest the affected joint,Apply ice packs,Use joint support,Avoid repetitive strain,bursitis
+Actinic keratosis,Avoid sun exposure,Use broad-spectrum sunscreen,Wear protective clothing,See dermatologist regularly,actinic keratosis
+COPD,Avoid smoking,Use inhalers as prescribed,Stay away from air pollution,Get vaccinated against flu,copd
+Spondylosis,Maintain good posture,Exercise regularly,Use ergonomic chairs,Avoid lifting heavy weights,spondylosis
+Injury to the arm,Immobilize the arm,Apply cold compress,Elevate the arm,Seek medical care if swelling,injury arm
+Complex regional pain syndrome,Follow physical therapy,Manage stress,Take prescribed medication,Avoid injury to the affected limb,complex regional pain syndrome
+Injury to the trunk,Apply ice or heat,Rest adequately,Use support belts if advised,Avoid strenuous activity,injury trunk
+Vulvodynia,Wear loose cotton clothing,Avoid scented products,Use prescribed creams,Manage stress levels,vulvodynia
+Concussion,Rest and avoid screens,Avoid physical activity,Monitor symptoms,Follow up with neurologist,concussion
+Hypoglycemia,Eat small frequent meals,Carry glucose tablets,Avoid skipping meals,Monitor blood sugar levels,hypoglycemia
+Hiatal hernia,Eat small frequent meals,Avoid lying down after eating,Avoid spicy food,Maintain healthy weight,hiatal hernia
+Allergy,Apply calamine,Cover area with bandage,Use ice to compress itching,Avoid known allergens,allergy
+Acute bronchospasm,Avoid cold air,Use bronchodilator inhaler,Avoid allergens,Monitor breathing patterns,acute bronchospasm
+Degenerative disc disease,Maintain healthy weight,Avoid lifting heavy items,Engage in back exercises,Use lumbar support,degenerative disc disease
+Pain after an operation,Take pain meds as prescribed,Avoid physical strain,Keep surgical area clean,Attend follow-up appointments,pain operation
+Injury to the leg,Elevate the leg,Apply ice packs,Avoid putting weight,Use crutches if advised,injury leg
+Gout,Avoid purine-rich food,Stay hydrated,Limit alcohol intake,Take medication as prescribed,gout
+Otitis media,Avoid water entering ears,Take antibiotics as prescribed,Use warm compress,Follow up with ENT specialist,otitis medium
+Acute kidney injury,Avoid NSAIDs,Stay hydrated,Monitor fluid intake,Follow renal diet plan,acute kidney injury
+Threatened pregnancy,Take prescribed medications,Avoid stress and lifting heavy items,Get regular checkups,Rest as recommended,threatened pregnancy
+Gum disease,Maintain oral hygiene,Floss daily,Avoid smoking,Visit dentist regularly,gum disease
+Gastrointestinal hemorrhage,Avoid NSAIDs,Eat a soft bland diet,Limit alcohol,Follow up with GI specialist,gastrointestinal hemorrhage
+Anxiety,Practice relaxation techniques,Avoid stimulants like caffeine,Maintain regular sleep,Seek counseling if needed,anxiety
+Conjunctivitis due to allergy,Avoid rubbing eyes,Use antihistamine drops,Keep environment clean,Avoid known allergens,conjunctivitis due allergy
+Drug reaction,Stop the drug immediately,Consult a doctor,Use antihistamines if prescribed,Monitor for worsening symptoms,drug reaction
+Macular degeneration,Wear sunglasses,Eat leafy greens,Avoid smoking,Regular eye checkups,macular degeneration
+Pneumonia,Take full course of antibiotics,Avoid smoking,Rest adequately,Stay hydrated,pneumonia
+Vaginal cyst,Maintain genital hygiene,Avoid tight clothing,Do warm sitz baths,Follow doctor’s advice,vaginal cyst
+Carpal tunnel syndrome,Take frequent hand breaks,Use wrist splints,Avoid repetitive motions,Do stretching exercises,carpal tunnel syndrome
+Nose disorder,Avoid nose picking,Keep nasal passages moist,Use saline sprays,Avoid irritants and allergens,nose disorder
+Dental caries,Brush twice daily,Limit sugar intake,Visit dentist regularly,Floss daily,dental caries
+Hypertensive heart disease,Reduce salt intake,Monitor blood pressure,Exercise regularly,Take antihypertensive medication,hypertensive heart disease
+Seasonal allergies (hay fever),Keep windows closed during high pollen,Shower after being outdoors,Use air purifier,Take antihistamines,seasonal allergy hay fever
+Fungal infection of the hair,Keep scalp dry and clean,Avoid sharing personal items,Use antifungal shampoo,Maintain proper hygiene,fungal infection hair
+Rectal disorder,Eat a high-fiber diet,Drink plenty of water,Avoid straining during bowel movements,Use sitz baths,rectal disorder
+Stye,Apply warm compress,Avoid touching or squeezing,Maintain eyelid hygiene,Discontinue eye makeup temporarily,stye
+Heart attack,Take prescribed medication,Avoid stress,Eat heart-healthy diet,Monitor cholesterol and BP,heart attack
+Obstructive sleep apnea (OSA),Maintain healthy weight,Use CPAP machine if prescribed,Avoid alcohol before bedtime,Sleep on your side,obstructive sleep apnea osa
+Psoriasis,Keep skin moisturized,Avoid triggers like stress,Use prescribed creams,Avoid scratching,psoriasis
+Arthritis of the hip,Do low-impact exercises,Use walking aids if needed,Maintain healthy weight,Take anti-inflammatory medication,arthritis hip
+Sickle cell crisis,Stay hydrated,Avoid extreme temperatures,Prevent infections,Take prescribed medication regularly,sickle cell crisis
+Otitis externa (swimmer's ear),Dry ears after swimming,Avoid inserting objects into ears,Use prescribed ear drops,Avoid dirty water bodies,otitis externa swimmer ear
+Acute bronchiolitis,Keep child hydrated,Use humidifier,Avoid exposure to smoke,Monitor breathing,acute bronchiolitis
+Pyogenic skin infection,Keep wound clean and dry,Avoid scratching,Take prescribed antibiotics,Cover infected area,pyogenic skin infection
+Noninfectious gastroenteritis,Avoid irritant foods,Stay hydrated,Eat bland diet,Rest well,noninfectious gastroenteritis
+Benign prostatic hyperplasia (BPH),Limit evening fluid intake,Avoid alcohol and caffeine,Empty bladder completely,Follow up with urologist,benign prostatic hyperplasia bph
+Spinal stenosis,Avoid high-impact activities,Use walking support,Physical therapy,Take anti-inflammatory meds,spinal stenosis
+Acute bronchitis,Avoid smoking,Drink warm fluids,Use cough suppressants if needed,Rest and recover,acute bronchitis
+Croup,Use humidified air,Keep child calm,Encourage fluid intake,Seek medical help for breathing difficulty,croup
+Idiopathic excessive menstruation,Use sanitary protection,Monitor blood loss,Iron-rich diet,Consult gynecologist,idiopathic excessive menstruation
+Ear drum damage,Avoid water entry into ear,Don’t insert objects into ear,Use ear drops as prescribed,Follow up with ENT,ear drum damage
+Temporary or benign blood in urine,Stay hydrated,Avoid strenuous activity,Avoid certain medications (as advised),Follow up with doctor,temporary benign blood urine
+Common cold,Drink plenty of fluids,Rest well,Use nasal decongestants,Practice good hygiene,common cold
+Depression,Maintain social connection,Follow treatment plan,Get regular exercise,Avoid alcohol and drugs,depression
+Idiopathic irregular menstrual cycle,Keep menstrual diary,Maintain healthy weight,Reduce stress,Consult a gynecologist,idiopathic irregular menstrual cycle
+Schizophrenia,Adhere to medication,Avoid substance abuse,Attend therapy sessions,Build a support network,schizophrenia
+Sepsis,Seek urgent medical care,Follow antibiotic regimen,Monitor temperature & vitals,Maintain good hygiene,sepsis
+Cholecystitis,Avoid fatty foods,Stay hydrated,Follow up for imaging/tests,Take antibiotics as prescribed,cholecystitis
+Cystitis,Drink cranberry juice or water,Urinate frequently,Avoid irritants like caffeine,Wipe front to back,cystitis
+Hemorrhoids,Eat fiber-rich foods,Avoid prolonged sitting,Stay hydrated,Use sitz baths,hemorrhoid
+Contact dermatitis,Identify and avoid allergen,Use fragrance-free products,Apply soothing lotion,Wear gloves when needed,contact dermatitis
+Sinus bradycardia,Avoid excessive physical strain,Regular cardiac monitoring,Follow-up with cardiologist,Manage electrolyte balance,sinus bradycardia
+Pelvic inflammatory disease,Complete full course of antibiotics,Avoid sexual activity during treatment,Practice safe sex,Attend follow-up appointments,pelvic inflammatory disease
+Liver disease,Avoid alcohol,Follow a liver-friendly diet,Get vaccinated for hepatitis,Monitor liver function tests,liver disease
+Chronic constipation,Increase fiber intake,Exercise regularly,Stay hydrated,Avoid delaying bowel movements,chronic constipation
+Skin polyp,Avoid irritation or injury to area,Monitor size and appearance,Don’t self-remove,Seek medical evaluation,skin polyp
+Brachial neuritis,Avoid heavy lifting,Physical therapy,Manage pain with meds,Get adequate rest,brachial neuritis
+Esophagitis,Avoid spicy & acidic food,Eat smaller meals,Sit upright after eating,Follow prescribed medication,esophagitis
+Diverticulitis,Eat low-fiber during flare-ups,Stay hydrated,Take antibiotics if prescribed,Avoid seeds/nuts if advised,diverticulitis
+Sprain or strain,Rest the area,Apply ice packs,Compression with bandage,Elevate the limb,sprain strain
+Idiopathic painful menstruation,Use heat pads,Take antispasmodics/NSAIDs,Regular exercise,Avoid stress,idiopathic painful menstruation
+Eustachian Tube Dysfunction (Ear Disorder),Avoid flying with a cold,Use decongestants,Perform Valsalva maneuver,Stay hydrated,eustachian tube dysfunction ear disorder
+Appendicitis,Avoid taking laxatives,Seek emergency care,Don’t eat or drink before surgery,Follow post-op instructions,appendicitis
+Hyperemesis gravidarum,"Eat small, frequent meals",Stay hydrated,Avoid strong odors,Take prescribed anti-nausea meds,hyperemesis gravidarum
+Urinary tract infection,Drink plenty of fluids,Urinate after sex,Wipe front to back,Complete antibiotic course,urinary tract infection
+Peripheral nerve disorder,Avoid repetitive injury,Use ergonomic tools,Take B vitamins if deficient,Follow neurologist’s advice,peripheral nerve disorder
+Sebaceous cyst,Keep area clean,Avoid squeezing,Apply warm compress,Get it drained by a doctor if needed,sebaceous cyst
+Spontaneous abortion,Take emotional support,Rest adequately,Avoid strenuous activity,Follow up for check-up,spontaneous abortion
+Gallstone,Avoid high-fat foods,Maintain a healthy weight,Eat regular meals,Follow up for surgical evaluation if needed,gallstone
+Multiple sclerosis,Avoid overheating,Follow medication schedule,Stay physically active,Rest when needed,multiple sclerosis
+Angina,Avoid overexertion,Take nitroglycerin as prescribed,Manage stress,Avoid cold exposure,angina
+Skin pigmentation disorder,Use sunscreen daily,Avoid skin irritants,Follow dermatological treatments,Stay hydrated,skin pigmentation disorder
+Personality disorder,Follow psychotherapy plan,Avoid substance use,Build healthy relationships,Maintain regular routines,personality disorder
+Strep throat,Complete full antibiotic course,Avoid sharing utensils,Get adequate rest,Drink warm fluids,strep throat
+Developmental disability,Follow individualized education plans,Encourage structured routine,Regular therapy,Provide positive reinforcement,developmental disability
+Chronic back pain,Maintain proper posture,Regular stretching,Use ergonomic furniture,Avoid lifting heavy objects,chronic back pain
+Heart failure,Monitor fluid intake,Follow low-sodium diet,Take prescribed meds,Track weight daily,heart failure
+Conjunctivitis,Use prescribed eye drops,Avoid touching/rubbing eyes,Wash hands frequently,Don’t share towels,conjunctivitis
+Herniated disk,Avoid lifting heavy items,Follow physical therapy,Use proper posture,Take prescribed meds,herniated disk
+Diaper rash,Keep area dry,Change diapers frequently,Apply protective creams,Avoid scented products,diaper rash
+Eczema,Moisturize regularly,Avoid irritants like soaps & wool,Use corticosteroid creams,Reduce stress,eczema
