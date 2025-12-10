@@ -8,15 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { commonSymptoms } from "@/data/mockData";
-import { 
-  Activity, 
-  X, 
-  Plus, 
+import {
+  Activity,
+  X,
+  Plus,
   AlertCircle,
   Clock,
   User,
   ArrowRight,
-  Stethoscope
+  Stethoscope,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -60,22 +60,48 @@ const SymptomChecker = () => {
     }
 
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    // Store data in session storage for results page
-    sessionStorage.setItem("symptomData", JSON.stringify({
-      symptoms,
-      description,
-      duration,
-      severity,
-      age,
-      gender,
-    }));
-    
-    setIsLoading(false);
-    navigate("/results");
+
+    try {
+      const res = await fetch("http://127.0.0.1:5000/api/assess", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          symptoms,
+          description,
+          duration,
+          severity,
+          age,
+          gender,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Backend error");
+      }
+
+      const assessment = await res.json();
+      // { concern_level, suggestions, recommended_departments }
+
+      sessionStorage.setItem(
+        "symptomData",
+        JSON.stringify({
+          symptoms,
+          description,
+          duration,
+          severity,
+          age,
+          gender,
+          assessment,
+        })
+      );
+
+      navigate("/results");
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to analyze symptoms. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const availableSymptoms = commonSymptoms.filter((s) => !symptoms.includes(s));
@@ -287,7 +313,7 @@ const SymptomChecker = () => {
             {/* Disclaimer */}
             <div className="mt-6 p-4 bg-warning/10 border border-warning/20 rounded-xl">
               <p className="text-sm text-muted-foreground text-center">
-                <strong className="text-warning">Important:</strong> This tool provides general health information only and is not intended as medical advice. 
+                <strong className="text-warning">Important:</strong> This tool provides general health information only and is not intended as medical advice.
                 Always consult a qualified healthcare professional for proper diagnosis and treatment.
               </p>
             </div>
