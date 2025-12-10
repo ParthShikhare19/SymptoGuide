@@ -218,11 +218,33 @@ class SymptomExtractor:
         self.stop_words = set(stopwords.words('english'))
         self.lemmatizer = WordNetLemmatizer()
         
+        # Phrases that indicate NO symptoms - should return empty
+        self.no_symptom_phrases = [
+            'no symptom', 'no symptoms', 'feeling well', 'feel well', 'feeling fine',
+            'feel fine', 'feeling good', 'feel good', 'feeling okay', 'feel okay',
+            'feeling ok', 'feel ok', 'i am fine', 'i am well', 'i am good',
+            'i am okay', 'i am ok', 'nothing wrong', 'no problem', 'no issues',
+            'healthy', 'all good', 'doing well', 'doing fine', 'doing good',
+            'not sick', 'no pain', 'no discomfort'
+        ]
+        
+        # Words that should NOT trigger symptom matching
+        self.blacklist_words = {
+            'well', 'good', 'fine', 'okay', 'ok', 'no', 'not', 'none', 'nothing',
+            'healthy', 'normal', 'feeling', 'feel', 'am', 'is', 'are', 'was',
+            'have', 'has', 'had', 'the', 'a', 'an', 'i', 'my', 'me', 'symptoms'
+        }
+        
     def extract_symptoms(self, user_input):
         """Extract symptoms from user's natural language input"""
         user_input = user_input.lower().strip()
         extracted_symptoms = set()
         matched_phrases = []
+        
+        # Check for "no symptoms" type phrases first
+        for phrase in self.no_symptom_phrases:
+            if phrase in user_input:
+                return [], []  # Return empty - user has no symptoms
         
         # 1. First try exact phrase matching (most accurate)
         for phrase, symptoms in SYMPTOM_PHRASES.items():
@@ -243,6 +265,9 @@ class SymptomExtractor:
         words = user_input.split()
         for word in words:
             word_clean = word.strip(punctuation).lower()
+            # Skip blacklisted words
+            if word_clean in self.blacklist_words:
+                continue
             if word_clean in SINGLE_WORD_SYMPTOMS:
                 for symptom in SINGLE_WORD_SYMPTOMS[word_clean]:
                     if symptom in self.known_symptoms:
@@ -253,41 +278,72 @@ class SymptomExtractor:
                             extracted_symptoms.add(matched)
         
         # 3. If no matches found, try tokenizing and direct matching
+        # BUT only if there are meaningful words (not just common words)
         if not extracted_symptoms:
             tokens = word_tokenize(user_input)
-            tokens = [t for t in tokens if t not in self.stop_words and t not in punctuation]
+            tokens = [t for t in tokens if t not in self.stop_words 
+                      and t not in punctuation 
+                      and t not in self.blacklist_words
+                      and len(t) > 2]  # Skip very short words
             
             for token in tokens:
                 lemma = self.lemmatizer.lemmatize(token)
-                # Try direct match
-                matched = self._fuzzy_match(lemma)
+                # Skip if lemma is in blacklist
+                if lemma in self.blacklist_words:
+                    continue
+                # Try direct match with higher threshold
+                matched = self._fuzzy_match(lemma, threshold=0.85)
                 if matched:
                     extracted_symptoms.add(matched)
         
         return list(extracted_symptoms), matched_phrases
     
-    def _fuzzy_match(self, symptom, threshold=0.7):
+    def _fuzzy_match(self, symptom, threshold=0.8):
         """Fuzzy match symptom to known symptoms"""
         symptom_normalized = symptom.lower().replace(' ', '_').replace('-', '_')
+        
+        # Skip if too short (likely not a real symptom word)
+        if len(symptom_normalized) < 4:
+            return None
+        
+        # Skip blacklisted words
+        if symptom_normalized in self.blacklist_words:
+            return None
         
         # Exact match
         if symptom_normalized in self.known_symptoms:
             return symptom_normalized
         
-        # Substring match
+        # Substring match - but require meaningful length
         for known in self.known_symptoms:
-            if symptom_normalized in known or known in symptom_normalized:
-                return known
+            # Only match if the input is a substantial part of the known symptom
+            if len(symptom_normalized) >= 5:
+                if symptom_normalized in known and len(symptom_normalized) >= len(known) * 0.6:
+                    return known
+                if known in symptom_normalized and len(known) >= len(symptom_normalized) * 0.6:
+                    return known
         
-        # Token overlap
+        # Token overlap - with stricter requirements
         symptom_tokens = set(symptom_normalized.split('_'))
+        # Remove blacklisted tokens
+        symptom_tokens = {t for t in symptom_tokens if t not in self.blacklist_words and len(t) > 2}
+        
+        if not symptom_tokens:
+            return None
+            
         best_match = None
         best_score = 0
         
         for known in self.known_symptoms:
             known_tokens = set(known.split('_'))
+            known_tokens = {t for t in known_tokens if len(t) > 2}
+            
+            if not known_tokens:
+                continue
+                
             overlap = len(symptom_tokens & known_tokens)
             if overlap > 0:
+                # Require at least one meaningful overlapping token
                 score = overlap / max(len(symptom_tokens), len(known_tokens))
                 if score > best_score and score >= threshold:
                     best_score = score
