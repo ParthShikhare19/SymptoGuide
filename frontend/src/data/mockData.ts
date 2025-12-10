@@ -4,6 +4,7 @@ export interface SymptomCategory {
   icon: string;
   description: string;
   severity: "low" | "medium" | "high";
+  keywords: string[];
 }
 
 export interface Specialist {
@@ -13,6 +14,7 @@ export interface Specialist {
   description: string;
   icon: string;
   conditions: string[];
+  departments: string[];
 }
 
 export interface Hospital {
@@ -34,6 +36,7 @@ export const symptomCategories: SymptomCategory[] = [
     icon: "Wind",
     description: "Cough, shortness of breath, wheezing, congestion",
     severity: "medium",
+    keywords: ["cough", "shortness of breath", "breathing", "wheezing"],
   },
   {
     id: "digestive",
@@ -41,6 +44,7 @@ export const symptomCategories: SymptomCategory[] = [
     icon: "Utensils",
     description: "Stomach pain, nausea, bloating, irregular bowel movements",
     severity: "low",
+    keywords: ["stomach pain", "nausea", "vomiting", "diarrhea", "abdomen"],
   },
   {
     id: "skin",
@@ -48,6 +52,7 @@ export const symptomCategories: SymptomCategory[] = [
     icon: "Droplets",
     description: "Rashes, itching, hives, swelling, allergic reactions",
     severity: "low",
+    keywords: ["rash", "skin", "itching", "allergy"],
   },
   {
     id: "neurology",
@@ -55,6 +60,7 @@ export const symptomCategories: SymptomCategory[] = [
     icon: "Brain",
     description: "Headaches, dizziness, numbness, memory issues",
     severity: "medium",
+    keywords: ["headache", "migraine", "dizziness", "numbness"],
   },
   {
     id: "cardiovascular",
@@ -62,6 +68,7 @@ export const symptomCategories: SymptomCategory[] = [
     icon: "Heart",
     description: "Chest pain, palpitations, irregular heartbeat",
     severity: "high",
+    keywords: ["chest pain", "palpitations", "heart"],
   },
   {
     id: "infection",
@@ -69,6 +76,7 @@ export const symptomCategories: SymptomCategory[] = [
     icon: "Thermometer",
     description: "Fever, fatigue, body aches, swollen lymph nodes",
     severity: "medium",
+    keywords: ["fever", "fatigue", "body aches"],
   },
 ];
 
@@ -77,65 +85,81 @@ export const specialists: Specialist[] = [
     id: "gp",
     name: "General Physician",
     title: "Primary Care",
-    description: "First point of contact for general health concerns, routine check-ups, and referrals.",
+    description:
+      "First point of contact for general health concerns, routine check-ups, and referrals.",
     icon: "Stethoscope",
     conditions: ["Fever", "Cold", "Fatigue", "General Pain"],
+    departments: ["Primary Care", "General Medicine"],
   },
   {
     id: "cardiologist",
     name: "Cardiologist",
     title: "Heart Specialist",
-    description: "Specializes in heart and cardiovascular system disorders and treatments.",
+    description:
+      "Specializes in heart and cardiovascular system disorders and treatments.",
     icon: "Heart",
     conditions: ["Chest Pain", "Palpitations", "High Blood Pressure"],
+    departments: ["Cardiology", "Emergency"],
   },
   {
     id: "dermatologist",
     name: "Dermatologist",
     title: "Skin Specialist",
-    description: "Expert in skin, hair, and nail conditions including allergies and cosmetic concerns.",
+    description:
+      "Expert in skin, hair, and nail conditions including allergies and cosmetic concerns.",
     icon: "Droplets",
     conditions: ["Rashes", "Acne", "Eczema", "Skin Allergies"],
+    departments: ["Dermatology"],
   },
   {
     id: "ent",
     name: "ENT Specialist",
     title: "Ear, Nose & Throat",
-    description: "Treats conditions related to ears, nose, throat, and related head structures.",
+    description:
+      "Treats conditions related to ears, nose, throat, and related head structures.",
     icon: "Ear",
     conditions: ["Sore Throat", "Hearing Issues", "Sinus Problems"],
+    departments: ["ENT"],
   },
   {
     id: "neurologist",
     name: "Neurologist",
     title: "Brain & Nerve Specialist",
-    description: "Diagnoses and treats disorders of the nervous system including brain and spine.",
+    description:
+      "Diagnoses and treats disorders of the nervous system including brain and spine.",
     icon: "Brain",
     conditions: ["Headaches", "Migraines", "Numbness", "Seizures"],
+    departments: ["Neurology"],
   },
   {
     id: "gastroenterologist",
     name: "Gastroenterologist",
     title: "Digestive Specialist",
-    description: "Expert in digestive system disorders from esophagus to intestines.",
+    description:
+      "Expert in digestive system disorders from esophagus to intestines.",
     icon: "Utensils",
     conditions: ["Stomach Pain", "Acid Reflux", "IBS", "Liver Issues"],
+    departments: ["Gastroenterology"],
   },
   {
     id: "pulmonologist",
     name: "Pulmonologist",
     title: "Lung Specialist",
-    description: "Specializes in respiratory system diseases and breathing disorders.",
+    description:
+      "Specializes in respiratory system diseases and breathing disorders.",
     icon: "Wind",
     conditions: ["Asthma", "COPD", "Breathing Difficulty", "Chronic Cough"],
+    departments: ["Pulmonology", "Emergency"],
   },
   {
     id: "orthopedic",
     name: "Orthopedic Surgeon",
     title: "Bone & Joint Specialist",
-    description: "Treats musculoskeletal issues including bones, joints, muscles, and ligaments.",
+    description:
+      "Treats musculoskeletal issues including bones, joints, muscles, and ligaments.",
     icon: "Bone",
     conditions: ["Joint Pain", "Fractures", "Arthritis", "Sports Injuries"],
+    departments: ["Orthopedics"],
   },
 ];
 
