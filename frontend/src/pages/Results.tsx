@@ -48,8 +48,6 @@ const Results = () => {
       return;
     }
     setSymptomData(JSON.parse(data));
-    
-    // Simulate loading
     setTimeout(() => setIsLoading(false), 800);
   }, [navigate]);
 
@@ -66,10 +64,49 @@ const Results = () => {
     );
   }
 
-  // Mock analysis results based on symptoms
-  const relevantCategories = symptomCategories.slice(0, 3);
-  const recommendedSpecialists = specialists.slice(0, 4);
-  const isEmergency = symptomData?.severity === "severe";
+  const assessment = symptomData?.assessment;
+  const concernLevel: "low" | "moderate" | "high" =
+    assessment?.concern_level || "low";
+  const isEmergencyBackend = concernLevel === "high";
+  const isEmergency = isEmergencyBackend || symptomData?.severity === "severe";
+
+  const allSymptoms: string[] = symptomData?.symptoms || [];
+  const departments: string[] =
+    assessment?.recommended_departments || ["Primary Care"];
+
+  // Dynamic Potential Concern Areas
+  const relevantCategories = symptomCategories
+    .filter((cat) => {
+      const keywords = (cat.keywords || []) as string[];
+      const text = keywords.join(" ").toLowerCase();
+      return allSymptoms.some((s) => text.includes(s.toLowerCase()));
+    })
+    .slice(0, 3);
+
+  const finalCategories =
+    relevantCategories.length > 0
+      ? relevantCategories
+      : symptomCategories.slice(0, 3);
+
+  // Dynamic Recommended Specialists
+  const recommendedSpecialists = specialists
+    .filter((sp) => {
+      const spDepts = (sp.departments || []) as string[];
+      return departments.some((d) => spDepts.includes(d));
+    })
+    .slice(0, 4);
+
+  const finalSpecialists =
+    recommendedSpecialists.length > 0
+      ? recommendedSpecialists
+      : specialists.slice(0, 4);
+
+  const firstDepartment = departments[0] || "Primary Care";
+
+  console.log("symptoms:", allSymptoms);
+  console.log("assessment departments:", departments);
+  console.log("finalCategories:", finalCategories);
+  console.log("finalSpecialists:", finalSpecialists);
 
   return (
     <Layout>
@@ -85,7 +122,8 @@ const Results = () => {
               Your Symptom <span className="gradient-text">Analysis</span>
             </h1>
             <p className="text-muted-foreground">
-              Based on your symptoms: {symptomData?.symptoms?.join(", ") || "General assessment"}
+              Based on your symptoms:{" "}
+              {symptomData?.symptoms?.join(", ") || "General assessment"}
             </p>
           </div>
 
@@ -112,17 +150,22 @@ const Results = () => {
                       Severe Symptoms Detected
                     </h3>
                     <p className="text-muted-foreground mb-4">
-                      Based on the severity of your symptoms, we recommend seeking medical attention promptly. 
-                      This is not a diagnosis. If you experience chest pain, difficulty breathing, or other 
-                      emergency symptoms, please call emergency services immediately.
+                      Based on the severity of your symptoms, we recommend
+                      seeking medical attention promptly. This is not a
+                      diagnosis. If you experience chest pain, difficulty
+                      breathing, or other emergency symptoms, please call
+                      emergency services immediately.
                     </p>
                     <div className="flex flex-wrap gap-3">
                       <Button variant="destructive" className="gap-2">
                         <Phone className="h-4 w-4" />
-                        Call 911
+                        Call Emergency
                       </Button>
-                      <Link to="/hospitals">
-                        <Button variant="outline" className="gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                      <Link to="/hospitals" state={{ department: "Emergency" }}>
+                        <Button
+                          variant="outline"
+                          className="gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        >
                           Find Emergency Room
                           <ArrowRight className="h-4 w-4" />
                         </Button>
@@ -133,6 +176,68 @@ const Results = () => {
               </div>
             )}
 
+            {/* Backend Assessment Summary */}
+            {assessment && (
+              <section className="healthcare-card p-6 md:p-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Activity className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">Preliminary Assessment</h2>
+                    <p className="text-sm text-muted-foreground">
+                      This is an automated, non-diagnostic assessment based on
+                      your reported symptoms.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Concern level:
+                  </span>
+                  <Badge
+                    variant="outline"
+                    className={
+                      concernLevel === "high"
+                        ? "bg-destructive/10 text-destructive border-destructive/40"
+                        : concernLevel === "moderate"
+                        ? "bg-warning/10 text-warning border-warning/40"
+                        : "bg-success/10 text-success border-success/40"
+                    }
+                  >
+                    {concernLevel.toUpperCase()}
+                  </Badge>
+                </div>
+
+                {assessment.suggestions && (
+                  <div className="mb-4">
+                    <p className="text-sm font-semibold mb-2">Suggestions:</p>
+                    <ul className="list-disc list-inside text-sm text-muted-foreground">
+                      {assessment.suggestions.map(
+                        (s: string, idx: number) => (
+                          <li key={idx}>{s}</li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
+
+                {assessment.recommended_departments && (
+                  <div className="flex flex-wrap gap-2">
+                    <span className="text-sm font-semibold">
+                      Recommended departments:
+                    </span>
+                    {assessment.recommended_departments.map((d: string) => (
+                      <Badge key={d} variant="secondary">
+                        {d}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
             {/* Potential Concern Areas */}
             <section className="healthcare-card p-6 md:p-8">
               <div className="flex items-center gap-3 mb-6">
@@ -141,25 +246,29 @@ const Results = () => {
                 </div>
                 <h2 className="text-xl font-bold">Potential Concern Areas</h2>
               </div>
-              
+
               <div className="grid md:grid-cols-3 gap-4">
-                {relevantCategories.map((category, index) => {
+                {finalCategories.map((category, index) => {
                   const Icon = iconMap[category.icon] || Activity;
-                  const severityColors = {
+                  const severityColors: Record<string, string> = {
                     low: "bg-success/10 text-success border-success/30",
                     medium: "bg-warning/10 text-warning border-warning/30",
                     high: "bg-destructive/10 text-destructive border-destructive/30",
                   };
-                  
+
                   return (
                     <div
                       key={category.id}
-                      className={`p-5 rounded-xl border-2 ${severityColors[category.severity]} transition-all hover:scale-[1.02]`}
+                      className={`p-5 rounded-xl border-2 ${
+                        severityColors[category.severity]
+                      } transition-all hover:scale-[1.02]`}
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <Icon className="h-8 w-8 mb-3" />
                       <h3 className="font-semibold mb-1">{category.name}</h3>
-                      <p className="text-sm opacity-80">{category.description}</p>
+                      <p className="text-sm opacity-80">
+                        {category.description}
+                      </p>
                       <Badge
                         variant="secondary"
                         className={`mt-3 ${
@@ -170,7 +279,9 @@ const Results = () => {
                             : "bg-success/20 text-success"
                         }`}
                       >
-                        {category.severity.charAt(0).toUpperCase() + category.severity.slice(1)} Priority
+                        {category.severity.charAt(0).toUpperCase() +
+                          category.severity.slice(1)}{" "}
+                        Priority
                       </Badge>
                     </div>
                   );
@@ -196,7 +307,7 @@ const Results = () => {
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
-                {recommendedSpecialists.map((specialist, index) => {
+                {finalSpecialists.map((specialist, index) => {
                   const Icon = iconMap[specialist.icon] || Stethoscope;
                   return (
                     <div
@@ -209,7 +320,9 @@ const Results = () => {
                           <Icon className="h-6 w-6 text-primary-foreground" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-semibold mb-1">{specialist.name}</h3>
+                          <h3 className="font-semibold mb-1">
+                            {specialist.name}
+                          </h3>
                           <p className="text-sm text-primary font-medium mb-2">
                             {specialist.title}
                           </p>
@@ -217,11 +330,17 @@ const Results = () => {
                             {specialist.description}
                           </p>
                           <div className="flex flex-wrap gap-1">
-                            {specialist.conditions.slice(0, 3).map((condition) => (
-                              <Badge key={condition} variant="outline" className="text-xs">
-                                {condition}
-                              </Badge>
-                            ))}
+                            {specialist.conditions
+                              .slice(0, 3)
+                              .map((condition: string) => (
+                                <Badge
+                                  key={condition}
+                                  variant="outline"
+                                  className="text-xs"
+                                >
+                                  {condition}
+                                </Badge>
+                              ))}
                           </div>
                         </div>
                       </div>
@@ -238,13 +357,15 @@ const Results = () => {
                   <Building2 className="h-10 w-10 text-primary-foreground" />
                 </div>
                 <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-xl font-bold mb-2">Find Hospitals Near You</h3>
+                  <h3 className="text-xl font-bold mb-2">
+                    Find Hospitals Near You
+                  </h3>
                   <p className="text-muted-foreground">
-                    Search for hospitals and clinics with the specialists you need, 
-                    complete with contact information and directions.
+                    Search for hospitals and clinics with the specialists you
+                    need, complete with contact information and directions.
                   </p>
                 </div>
-                <Link to="/hospitals">
+                <Link to="/hospitals" state={{ department: firstDepartment }}>
                   <Button variant="hero" size="lg" className="gap-2">
                     Find Hospitals
                     <ArrowRight className="h-5 w-5" />
@@ -257,9 +378,11 @@ const Results = () => {
             <div className="p-4 bg-muted rounded-xl flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
               <p className="text-sm text-muted-foreground">
-                <strong>Disclaimer:</strong> This analysis is for informational purposes only and does not constitute 
-                medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified 
-                health provider with any questions you may have regarding a medical condition.
+                <strong>Disclaimer:</strong> This analysis is for informational
+                purposes only and does not constitute medical advice, diagnosis,
+                or treatment. Always seek the advice of your physician or other
+                qualified health provider with any questions you may have
+                regarding a medical condition.
               </p>
             </div>
           </div>
