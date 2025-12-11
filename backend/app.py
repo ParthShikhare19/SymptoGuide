@@ -28,9 +28,13 @@ try:
     from model.Healthcare_Assistant_System import HealthcareAssistant
     from model.Interract import SymptomExtractor, SYMPTOM_PHRASES, SINGLE_WORD_SYMPTOMS
     ML_MODEL_AVAILABLE = True
+    ML_IMPORT_ERROR = None
 except ImportError as e:
     print(f"⚠️ ML Model not available: {e}")
+    import traceback
+    traceback.print_exc()
     ML_MODEL_AVAILABLE = False
+    ML_IMPORT_ERROR = str(e)
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -49,7 +53,7 @@ def initialize_assistant():
     _initialized = True
     
     if not ML_MODEL_AVAILABLE:
-        _init_error = "ML model imports not available"
+        _init_error = f"ML model imports not available: {ML_IMPORT_ERROR}"
         return False
     try:
         logger.info("Initializing Healthcare Assistant...")

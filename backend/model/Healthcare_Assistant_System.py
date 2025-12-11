@@ -14,11 +14,13 @@ import sys
 import warnings
 warnings.filterwarnings('ignore')
 
+# Add model directory to path for imports
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+
 # Import feature engineering
 from Feature_Engineering import SymptomFeatureEngineer, engineer_features, augment_training_data
-
-# Get the directory where this script is located
-_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class HealthcareAssistant:
     def __init__(self):
