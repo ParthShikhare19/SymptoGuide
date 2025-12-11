@@ -238,3 +238,4 @@ export const commonSymptoms = [
   "Skin Rash",
   "Muscle Aches",
 ];
+
