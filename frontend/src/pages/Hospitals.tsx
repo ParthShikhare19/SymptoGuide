@@ -30,6 +30,7 @@ interface DynamicHospital {
   rating: number;
   distance: string;
   has_specialties?: boolean;
+  image?: string;
 }
 
 const knownSpecialties = [
@@ -105,8 +106,9 @@ const Hospitals = () => {
           const departmentParam = encodeURIComponent(activeDepartment || "");
           console.log("🚀 Calling API with department:", departmentParam);
 
+          const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
           const res = await fetch(
-            `http://127.0.0.1:5000/api/nearby-hospitals?lat=${lat}&lng=${lng}&department=${departmentParam}`
+            `${API_URL}/nearby-hospitals?lat=${lat}&lng=${lng}&department=${departmentParam}`
           );
           const data = await res.json();
 
@@ -131,6 +133,7 @@ const Hospitals = () => {
                 distance: h.distance || "",
                 has_specialties:
                   h.has_specialties ?? (h.specialties || []).length > 0,
+                image: h.image || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400",
               })
             );
             setNearbyHospitals(mapped);
@@ -235,7 +238,7 @@ const Hospitals = () => {
 
       // Auto-fit map to show all markers
       if (markersRef.current.length > 0) {
-        const group = new L.featureGroup(markersRef.current);
+        const group = L.featureGroup(markersRef.current);
         mapRef.current?.fitBounds(group.getBounds(), { padding: [50, 50] });
       }
     }
@@ -496,46 +499,51 @@ const Hospitals = () => {
               )}
             </div>
 
-            {/* Map Placeholder */}
+            {/* Map View */}
             <div className="lg:col-span-1 hidden lg:block">
               <div className="healthcare-card p-4 sticky top-24">
                 <div className="flex items-center gap-2 mb-4">
                   <Map className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold">Map View</h3>
+                  <h3 className="font-semibold">{getMapTitle()}</h3>
                 </div>
-                <div className="aspect-square bg-secondary rounded-xl flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-3 animate-pulse" />
-                    <p className="text-sm text-muted-foreground">
-                      Interactive map coming soon
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Enable location to see hospitals near you
-                    </p>
-                    <Button variant="outline" size="sm" className="mt-4 gap-2">
-                      <Navigation className="h-4 w-4" />
-                      Enable Location
-                    </Button>
-                  </div>
-                  <div className="flex flex-col gap-2 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-teal-500"></div>
-                      {/* DYNAMIC LEGEND LABEL */}
-                      <span>{getLegendLabel()}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                      <span>Emergency (24/7)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                      <span>Your Location</span>
+                {userLat && userLng ? (
+                  <div className="space-y-4">
+                    <div 
+                      id="map-container" 
+                      className="w-full h-96 rounded-xl overflow-hidden border-2 border-border"
+                    />
+                    <div className="flex flex-col gap-2 text-xs text-muted-foreground bg-secondary/50 p-3 rounded-lg">
+                      <div className="font-semibold mb-1">Map Legend:</div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-teal-500"></div>
+                        <span>{getLegendLabel()}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                        <span>Emergency (24/7)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                        <span>Your Location</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2 italic">
+                        💡 Click on a hospital card to center the map
+                      </p>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-3">
-                    Click on a hospital to center the map
-                  </p>
-                </div>
+                ) : (
+                  <div className="aspect-square bg-secondary rounded-xl flex items-center justify-center">
+                    <div className="text-center p-6">
+                      <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-3 animate-pulse" />
+                      <p className="text-sm text-muted-foreground">
+                        {isLoading ? "Loading map..." : "Enable location to see map"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {locationError || "Allow location access in your browser"}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
