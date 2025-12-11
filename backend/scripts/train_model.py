@@ -327,29 +327,18 @@ class ImprovedModelTrainer:
             random_state=RANDOM_STATE
         )
         
-        knn = KNeighborsClassifier(
-            n_neighbors=5,
-            n_jobs=-1
-        )
+        # Note: KNN and SVC removed for faster training with large datasets
+        # They don't scale well with 92K samples and 740 features
         
-        svc = SVC(
-            kernel='rbf',
-            probability=True,
-            random_state=RANDOM_STATE,
-            class_weight='balanced'
-        )
-        
-        # Create voting ensemble
+        # Create voting ensemble (optimized for speed)
         self.best_model = VotingClassifier(
             estimators=[
                 ('rf', rf),
                 ('et', et),
-                ('gb', gb),
-                ('knn', knn),
-                ('svc', svc)
+                ('gb', gb)
             ],
             voting='soft',
-            weights=[3, 2, 2, 1, 2],
+            weights=[3, 2, 2],  # Equal importance to all three fast models
             n_jobs=-1
         )
         
