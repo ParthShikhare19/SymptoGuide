@@ -39,15 +39,17 @@ CORS(app)  # Enable CORS for all routes
 assistant = None
 symptom_extractor = None
 _initialized = False
+_init_error = None  # Track initialization errors for debugging
 
 def initialize_assistant():
     """Initialize and load the ML model"""
-    global assistant, symptom_extractor, _initialized
+    global assistant, symptom_extractor, _initialized, _init_error
     if _initialized:
         return assistant is not None
     _initialized = True
     
     if not ML_MODEL_AVAILABLE:
+        _init_error = "ML model imports not available"
         return False
     try:
         logger.info("Initializing Healthcare Assistant...")
@@ -58,12 +60,15 @@ def initialize_assistant():
         symptom_extractor = SymptomExtractor(assistant.all_symptoms)
         
         logger.info(f"✅ Model loaded successfully with {len(assistant.all_symptoms)} symptoms")
+        _init_error = None
         return True
     except FileNotFoundError as e:
-        logger.error(f"❌ Model file not found: {e}")
+        _init_error = f"Model file not found: {e}"
+        logger.error(f"❌ {_init_error}")
         return False
     except Exception as e:
-        logger.error(f"❌ Error loading model: {e}")
+        _init_error = f"Error loading model: {e}"
+        logger.error(f"❌ {_init_error}")
         import traceback
         traceback.print_exc()
         return False
@@ -78,11 +83,13 @@ def ensure_model_loaded():
 @app.route('/', methods=['GET'])
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
+    """Health check endpoint with debug info"""
     return jsonify({
         'status': 'healthy',
         'service': 'backend',
         'model_loaded': assistant is not None,
+        'initialized': _initialized,
+        'init_error': _init_error,
         'timestamp': datetime.now().isoformat()
     })
 
