@@ -26,3 +26,30 @@
 2025-12-10 16:22:11,248 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:22:11] "[35m[1mPOST /api/analyze HTTP/1.1[0m" 503 -
 2025-12-10 16:22:11,254 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:22:11] "OPTIONS /api/assess HTTP/1.1" 200 -
 2025-12-10 16:22:11,257 - werkzeug - INFO - 127.0.0.1 - - [10/Dec/2025 16:22:11] "POST /api/assess HTTP/1.1" 200 -
+2025-12-11 11:19:17,702 - SymptoGuide.API - INFO - Initializing Healthcare Assistant...
+2025-12-11 11:19:17,860 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.48.254:5000
+2025-12-11 11:19:17,860 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-12-11 11:19:22,137 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:19:22] "[33mGET /api/nearby-hospitals?lat=19.075849988584473&lng=72.89974765353881&department=Primary%20Care HTTP/1.1[0m" 404 -
+2025-12-11 11:19:41,499 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:19:41] "[35m[1mOPTIONS /api/analyze HTTP/1.1[0m" 204 -
+2025-12-11 11:19:42,509 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:19:42] "[35m[1mOPTIONS /api/analyze HTTP/1.1[0m" 204 -
+2025-12-11 11:19:43,827 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:19:43] "[35m[1mOPTIONS /api/analyze HTTP/1.1[0m" 204 -
+2025-12-11 11:19:44,834 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:19:44] "[35m[1mOPTIONS /api/analyze HTTP/1.1[0m" 204 -
+2025-12-11 11:19:44,839 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:19:44] "[35m[1mOPTIONS /api/assess HTTP/1.1[0m" 204 -
+2025-12-11 11:22:41,819 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-11 11:22:41,819 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-12-11 11:22:41,840 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-12-11 11:25:50,836 - SymptoGuide.API - INFO - Initializing Healthcare Assistant...
+2025-12-11 11:25:50,976 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.48.254:5000
+2025-12-11 11:25:50,976 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-12-11 11:26:10,760 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:26:10] "[35m[1mOPTIONS /api/analyze HTTP/1.1[0m" 204 -
+2025-12-11 11:26:11,764 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:26:11] "[35m[1mOPTIONS /api/analyze HTTP/1.1[0m" 204 -
+2025-12-11 11:26:13,078 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:26:13] "[35m[1mOPTIONS /api/analyze HTTP/1.1[0m" 204 -
+2025-12-11 11:26:14,085 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:26:14] "[35m[1mOPTIONS /api/analyze HTTP/1.1[0m" 204 -
+2025-12-11 11:26:14,089 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:26:14] "[35m[1mOPTIONS /api/assess HTTP/1.1[0m" 204 -

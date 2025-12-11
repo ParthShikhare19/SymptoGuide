@@ -44,7 +44,7 @@ app = Flask(__name__)
 
 # Configure CORS properly for production
 CORS(app, 
-     origins=["https://yoursymptoguide.vercel.app", "http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
+     origins=["https://yoursymptoguide.vercel.app", "http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://127.0.0.1:5173", "http://127.0.0.1:8080"],
      methods=["GET", "POST", "OPTIONS"],
      allow_headers=["Content-Type", "Authorization"],
      supports_credentials=True)
@@ -467,35 +467,6 @@ def service_unavailable(error):
         'message': 'Model is still loading, please try again in a moment'
     }), 503
 
-if __name__ == '__main__':
-    print("="*80)
-    print("🏥 SYMPTOGUIDE HEALTHCARE API SERVER")
-    print("="*80)
-    
-    # Initialize the assistant
-    if ML_MODEL_AVAILABLE and initialize_assistant():
-        print("\n✅ Server ready with ML model")
-        print("📍 API Endpoints:")
-        print("   GET  /api/health              - Health check")
-        print("   GET  /api/symptoms            - Get all symptoms")
-        print("   GET  /api/symptom-keywords    - Get symptom keywords")
-        print("   POST /api/analyze             - Analyze symptoms (ML-powered)")
-        print("   POST /api/assess              - Simple triage assessment")
-        print("   POST /api/extract-symptoms    - Extract symptoms from text")
-    else:
-        print("\n⚠️ Running in basic mode (ML model not available)")
-        print("📍 API Endpoints:")
-        print("   GET  /api/health              - Health check")
-        print("   POST /api/assess              - Simple triage assessment")
-    
-    # Get port from environment variable (required for Render)
-    port = int(os.environ.get('PORT', 5000))
-    
-    print(f"\n🚀 Starting Flask server on port {port}...")
-    print("="*80 + "\n")
-    
-    # Run the server (debug=False for production)
-    app.run(host='0.0.0.0', port=port, debug=False)
 # ----------------- Geoapify-based nearby hospitals -----------------
 @app.route("/api/nearby-hospitals", methods=["GET"])
 def nearby_hospitals():
@@ -721,6 +692,33 @@ def nearby_hospitals():
     return jsonify({"hospitals": results, "fallback_used": fallback_used})
 
 
-if __name__ == "__main__":
-    print("Starting Flask development server on http://127.0.0.1:5000")
-    app.run(debug=True, port=5000)
+if __name__ == '__main__':
+    print("="*80)
+    print("🏥 SYMPTOGUIDE HEALTHCARE API SERVER")
+    print("="*80)
+    
+    # Initialize the assistant
+    if ML_MODEL_AVAILABLE and initialize_assistant():
+        print("\n✅ Server ready with ML model")
+        print("📍 API Endpoints:")
+        print("   GET  /api/health              - Health check")
+        print("   GET  /api/symptoms            - Get all symptoms")
+        print("   GET  /api/symptom-keywords    - Get symptom keywords")
+        print("   POST /api/analyze             - Analyze symptoms (ML-powered)")
+        print("   POST /api/assess              - Simple triage assessment")
+        print("   POST /api/extract-symptoms    - Extract symptoms from text")
+        print("   GET  /api/nearby-hospitals    - Find nearby hospitals")
+    else:
+        print("\n⚠️ Running in basic mode (ML model not available)")
+        print("📍 API Endpoints:")
+        print("   GET  /api/health              - Health check")
+        print("   POST /api/assess              - Simple triage assessment")
+    
+    # Get port from environment variable (required for Render)
+    port = int(os.environ.get('PORT', 5000))
+    
+    print(f"\n🚀 Starting Flask server on port {port}...")
+    print("="*80 + "\n")
+    
+    # Run the server (debug=False for production)
+    app.run(host='0.0.0.0', port=port, debug=False)
