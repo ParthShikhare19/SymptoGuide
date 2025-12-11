@@ -19,10 +19,19 @@ class PredictionService:
         self.all_symptoms = self._load_all_symptoms()
     
     def _load_all_symptoms(self) -> List[str]:
-        """Load all possible symptoms from feature engineer"""
+        """Load all possible symptoms from feature engineer or model metadata"""
+        # Try feature engineer first
         feature_engineer = self.model_manager.get_feature_engineer()
         if feature_engineer and hasattr(feature_engineer, 'symptom_columns'):
             return feature_engineer.symptom_columns
+        
+        # Fall back to model metadata
+        metadata = self.model_manager.get_metadata()
+        if metadata and 'feature_names' in metadata:
+            logger.info(f"Loaded {len(metadata['feature_names'])} symptoms from model metadata")
+            return metadata['feature_names']
+        
+        logger.warning("No symptom list found - predictions may fail")
         return []
     
     async def predict(
@@ -133,13 +142,19 @@ class PredictionService:
     ) -> pd.DataFrame:
         """Prepare feature vector from symptoms"""
         
+        # Normalize input symptoms (lowercase, strip)
+        normalized_symptoms = [s.strip().lower() for s in symptoms]
+        
         # Create feature vector with all symptoms
         features = {}
         
         if self.all_symptoms:
             # Use known symptoms from training
             for symptom in self.all_symptoms:
-                if symptom in symptoms:
+                symptom_normalized = symptom.lower()
+                
+                # Check if this symptom is present
+                if symptom_normalized in normalized_symptoms:
                     # Use severity if provided, otherwise 1
                     if severity and symptom in severity:
                         features[symptom] = severity[symptom] / 10.0  # Normalize to 0-1
@@ -147,8 +162,11 @@ class PredictionService:
                         features[symptom] = 1
                 else:
                     features[symptom] = 0
+            
+            logger.info(f"Prepared features for {len(normalized_symptoms)} symptoms out of {len(self.all_symptoms)} total")
         else:
             # Fallback: just use provided symptoms
+            logger.warning("No symptom list available, using provided symptoms only")
             for symptom in symptoms:
                 if severity and symptom in severity:
                     features[symptom] = severity[symptom] / 10.0

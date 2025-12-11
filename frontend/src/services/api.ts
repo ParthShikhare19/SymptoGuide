@@ -1,9 +1,9 @@
 /**
  * API Service for SymptoGuide
- * Handles all communication with the Flask backend
+ * Handles all communication with the FastAPI backend
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // Retry configuration
 const MAX_RETRIES = 3;
@@ -12,14 +12,14 @@ const RETRY_DELAY = 1000;
 export interface SymptomAnalysisRequest {
   symptoms: string[];
   description?: string;
-  age?: string;
+  age?: number;  // Changed to number to match backend
   gender?: string;
   duration?: string;
-  severity?: string;
-  medicalHistory?: string;
-  currentMedications?: string;
+  severity?: Record<string, number>;  // Changed to match backend (symptom -> severity score)
+  medical_history?: string;  // Changed to snake_case
+  current_medications?: string;  // Changed to snake_case
   allergies?: string;
-  followUpAnswers?: Record<string, string>;
+  follow_up_answers?: Record<string, any>;  // Changed to snake_case
 }
 
 export interface DiseaseAlt {
@@ -196,7 +196,7 @@ class ApiService {
   async analyzeSymptoms(
     data: SymptomAnalysisRequest
   ): Promise<SymptomAnalysisResponse> {
-    const response = await this.fetchWithRetry(`${this.baseUrl}/analyze`, {
+    const response = await this.fetchWithRetry(`${this.baseUrl}/api/v1/analyze`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

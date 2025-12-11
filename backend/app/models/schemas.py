@@ -112,6 +112,7 @@ class ModelMetadata(BaseModel):
 class AnalysisResponse(BaseModel):
     """Response model for symptom analysis"""
     
+    success: bool = Field(default=True, description="Whether analysis was successful")
     predictions: List[PredictionResult] = Field(..., description="List of predictions")
     primary_prediction: PredictionResult = Field(..., description="Most likely prediction")
     

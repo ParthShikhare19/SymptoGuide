@@ -3,6 +3,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Dict, Any
 import time
+import pandas as pd
+from pathlib import Path
 
 from app.models.schemas import (
     SymptomAnalysisRequest,
@@ -16,13 +18,27 @@ from app.core.logging import logger
 
 router = APIRouter()
 
+# Load medical data
+DATA_PATH = Path("data/cleaned_datasets")
+try:
+    precautions_df = pd.read_csv(DATA_PATH / "precautions_cleaned.csv")
+    medications_df = pd.read_csv(DATA_PATH / "medications_cleaned.csv")
+    diets_df = pd.read_csv(DATA_PATH / "diets_cleaned.csv")
+    workouts_df = pd.read_csv(DATA_PATH / "workouts_cleaned.csv")
+    disease_desc_df = pd.read_csv(DATA_PATH / "disease_description_cleaned.csv")
+    logger.info("Medical data loaded successfully")
+except Exception as e:
+    logger.warning(f"Could not load medical data: {e}")
+    precautions_df = medications_df = diets_df = workouts_df = disease_desc_df = None
+
 
 def get_recommendations(disease: str, symptoms: list) -> list:
     """Get health recommendations based on disease"""
     
     recommendations = []
+    disease_lower = disease.lower().strip()
     
-    # General recommendations
+    # General recommendation
     recommendations.append(
         Recommendation(
             category="general",
@@ -32,26 +48,59 @@ def get_recommendations(disease: str, symptoms: list) -> list:
         )
     )
     
-    # Symptom-specific recommendations
-    if any(s in symptoms for s in ['fever', 'high fever']):
-        recommendations.append(
-            Recommendation(
-                category="symptom_management",
-                title="Monitor Temperature",
-                description="Keep track of your temperature and stay hydrated. Rest is important.",
-                priority="medium"
-            )
-        )
+    # Get medications from CSV
+    if medications_df is not None:
+        try:
+            med_row = medications_df[medications_df['Disease'].str.lower().str.strip() == disease_lower]
+            if not med_row.empty:
+                medication = med_row.iloc[0]['Medication']
+                if pd.notna(medication) and str(medication).strip():
+                    recommendations.append(
+                        Recommendation(
+                            category="medication",
+                            title="Recommended Medications",
+                            description=str(medication).strip(),
+                            priority="high"
+                        )
+                    )
+        except (KeyError, IndexError):
+            pass
     
-    if any(s in symptoms for s in ['cough', 'persistent cough']):
-        recommendations.append(
-            Recommendation(
-                category="symptom_management",
-                title="Manage Cough",
-                description="Stay hydrated, use humidifier, and avoid irritants. Seek medical advice if persistent.",
-                priority="medium"
-            )
-        )
+    # Get diet recommendations
+    if diets_df is not None:
+        try:
+            diet_row = diets_df[diets_df['Disease'].str.lower().str.strip() == disease_lower]
+            if not diet_row.empty:
+                diet = diet_row.iloc[0]['Diet']
+                if pd.notna(diet) and str(diet).strip():
+                    recommendations.append(
+                        Recommendation(
+                            category="diet",
+                            title="Dietary Recommendations",
+                            description=str(diet).strip(),
+                            priority="medium"
+                        )
+                    )
+        except (KeyError, IndexError):
+            pass
+    
+    # Get workout recommendations
+    if workouts_df is not None:
+        try:
+            workout_row = workouts_df[workouts_df['Disease'].str.lower().str.strip() == disease_lower]
+            if not workout_row.empty:
+                workout = workout_row.iloc[0]['Workouts']
+                if pd.notna(workout) and str(workout).strip():
+                    recommendations.append(
+                        Recommendation(
+                            category="exercise",
+                            title="Exercise Recommendations",
+                            description=str(workout).strip(),
+                            priority="medium"
+                        )
+                    )
+        except KeyError:
+            pass  # Column name might be different
     
     return recommendations
 
@@ -59,20 +108,31 @@ def get_recommendations(disease: str, symptoms: list) -> list:
 def get_precautions(disease: str, symptoms: list) -> list:
     """Get precautions based on disease"""
     
-    precautions = [
-        "Wash hands frequently with soap and water",
-        "Get adequate rest and sleep",
-        "Stay hydrated by drinking plenty of water",
-        "Avoid self-medication without consulting a doctor"
-    ]
+    precautions = []
+    disease_lower = disease.lower().strip()
     
-    # Add specific precautions based on symptoms
-    if any(s in symptoms for s in ['fever', 'cough', 'cold']):
-        precautions.extend([
-            "Avoid close contact with others to prevent spread",
-            "Cover your mouth when coughing or sneezing",
-            "Monitor your symptoms and seek medical help if they worsen"
-        ])
+    # Get precautions from CSV
+    if precautions_df is not None:
+        try:
+            prec_row = precautions_df[precautions_df['Disease'].str.lower().str.strip() == disease_lower]
+            if not prec_row.empty:
+                # Extract all precaution columns
+                for col in ['Precaution_1', 'Precaution_2', 'Precaution_3', 'Precaution_4']:
+                    if col in prec_row.columns:
+                        prec = prec_row.iloc[0][col]
+                        if pd.notna(prec) and str(prec).strip():
+                            precautions.append(str(prec).strip())
+        except (KeyError, IndexError):
+            pass
+    
+    # Add general precautions if none found
+    if not precautions:
+        precautions = [
+            "Consult a healthcare professional for proper diagnosis",
+            "Get adequate rest and sleep",
+            "Stay hydrated by drinking plenty of water",
+            "Follow prescribed treatment plan"
+        ]
     
     return precautions
 

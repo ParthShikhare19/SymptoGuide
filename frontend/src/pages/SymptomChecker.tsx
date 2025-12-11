@@ -163,18 +163,16 @@ const SymptomChecker = () => {
       try {
         const response: SymptomAnalysisResponse = await apiService.analyzeSymptoms({
           symptoms,
-          description,
-          age,
-          gender,
-          duration,
-          severity,
-          medicalHistory,
-          currentMedications,
-          allergies,
-          followUpAnswers: followUpQuestions.reduce((acc, q) => {
+          age: age ? parseInt(age) : undefined,
+          gender: gender || undefined,
+          severity: {},  // Empty dict for now, can map later if needed
+          medical_history: medicalHistory || undefined,
+          current_medications: currentMedications || undefined,
+          allergies: allergies || undefined,
+          follow_up_answers: followUpQuestions.reduce((acc, q) => {
             if (q.answer) acc[q.question] = q.answer;
             return acc;
-          }, {} as Record<string, string>),
+          }, {} as Record<string, any>),
         });
 
         if (response.success) {
