@@ -4,3 +4,12 @@ backend\model\__pycache__
 frontend\node_modules
 backend\venv
 backend\model\symptoguide.log
+
+# ML Models (too large for Git)
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.pth
+backend/ml_artifacts/
+backend/model/*.pkl
