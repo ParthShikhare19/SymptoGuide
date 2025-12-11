@@ -38,10 +38,15 @@ CORS(app)  # Enable CORS for all routes
 # Initialize the healthcare assistant
 assistant = None
 symptom_extractor = None
+_initialized = False
 
 def initialize_assistant():
     """Initialize and load the ML model"""
-    global assistant, symptom_extractor
+    global assistant, symptom_extractor, _initialized
+    if _initialized:
+        return assistant is not None
+    _initialized = True
+    
     if not ML_MODEL_AVAILABLE:
         return False
     try:
@@ -62,6 +67,13 @@ def initialize_assistant():
         import traceback
         traceback.print_exc()
         return False
+
+# Initialize model on first request (works with Gunicorn)
+@app.before_request
+def ensure_model_loaded():
+    """Ensure model is loaded before handling requests"""
+    if not _initialized:
+        initialize_assistant()
 
 @app.route('/', methods=['GET'])
 @app.route('/api/health', methods=['GET'])
