@@ -17,8 +17,8 @@ export const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-50 glass-effect border-b border-border/50">
-      <nav className="container mx-auto px-4 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+      <nav className="container mx-auto px-3 sm:px-4 lg:px-8">
+        <div className="flex h-14 sm:h-16 items-center justify-between">
           {/* Logo */}
           <Link 
             to="/" 
@@ -26,11 +26,11 @@ export const Navbar = () => {
           >
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 rounded-lg blur-md group-hover:blur-lg transition-all" />
-              <div className="relative bg-gradient-to-br from-primary to-accent p-2 rounded-lg">
-                <Heart className="h-5 w-5 text-primary-foreground" fill="currentColor" />
+              <div className="relative bg-gradient-to-br from-primary to-accent p-1.5 sm:p-2 rounded-lg">
+                <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" fill="currentColor" />
               </div>
             </div>
-            <span className="font-bold text-xl tracking-tight">
+            <span className="font-bold text-lg sm:text-xl tracking-tight">
               <span className="gradient-text">Sympto</span>
               <span className="text-foreground">Guide</span>
             </span>
@@ -61,7 +61,7 @@ export const Navbar = () => {
           {/* CTA Button */}
           <div className="hidden md:block">
             <Link to="/symptom-checker">
-              <Button variant="hero" size="default">
+              <Button variant="hero" size="default" className="text-sm lg:text-base">
                 Start Assessment
               </Button>
             </Link>

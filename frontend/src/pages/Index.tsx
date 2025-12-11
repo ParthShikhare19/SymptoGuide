@@ -65,49 +65,49 @@ const Index = () => {
         <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
         
-        <div className="container relative mx-auto px-4 lg:px-8 py-20 lg:py-32">
+        <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-8 animate-fade-in">
-              <Shield className="h-4 w-4" />
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8 animate-fade-in">
+              <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
               <span>Trusted Healthcare Guidance</span>
             </div>
 
             {/* Heading */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-slide-up">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-6 animate-slide-up px-2">
               Understand Your Symptoms.
-              <br />
+              <br className="hidden sm:block" />
               <span className="gradient-text">Get Guided Medical Help</span>
-              <br />
+              <br className="hidden sm:block" />
               Faster and Smarter.
             </h1>
 
             {/* Subheading */}
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: "0.1s" }}>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10 animate-slide-up px-4" style={{ animationDelay: "0.1s" }}>
               Our intelligent healthcare assistant helps you understand your symptoms and guides you toward the right medical experts—all in one place.
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: "0.2s" }}>
-              <Link to="/symptom-checker">
-                <Button variant="hero" size="xl" className="w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-slide-up px-4" style={{ animationDelay: "0.2s" }}>
+              <Link to="/symptom-checker" className="w-full sm:w-auto">
+                <Button variant="hero" size="lg" className="w-full sm:w-auto text-sm sm:text-base h-12 sm:h-14">
                   Start Assessment
-                  <ArrowRight className="h-5 w-5" />
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </Link>
-              <Link to="/specialists">
-                <Button variant="outline" size="xl" className="w-full sm:w-auto">
+              <Link to="/specialists" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto text-sm sm:text-base h-12 sm:h-14">
                   Find Specialists
                 </Button>
               </Link>
             </div>
 
             {/* Benefits List */}
-            <div className="flex flex-wrap justify-center gap-4 mt-10 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-8 sm:mt-10 animate-fade-in px-4" style={{ animationDelay: "0.3s" }}>
               {benefits.map((benefit, index) => (
-                <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span>{benefit}</span>
+                <div key={index} className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-success flex-shrink-0" />
+                  <span className="break-words">{benefit}</span>
                 </div>
               ))}
             </div>
@@ -117,14 +117,14 @@ const Index = () => {
 
       {/* Stats Section */}
       <section className="border-y border-border bg-secondary/30">
-        <div className="container mx-auto px-4 lg:px-8 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold gradient-text mb-1">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold gradient-text mb-1">
                   {stat.value}
                 </div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -132,31 +132,31 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 lg:py-28">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+      <section className="py-12 sm:py-16 lg:py-28">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 px-4">
               Your Complete Health <span className="gradient-text">Companion</span>
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg px-4">
               Everything you need to understand your health and find the right care—all in one intelligent platform.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
                 <div
                   key={index}
-                  className="healthcare-card p-6 group hover:-translate-y-1 transition-all duration-300"
+                  className="healthcare-card p-4 sm:p-6 group hover:-translate-y-1 transition-all duration-300"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.color} mb-4 group-hover:scale-110 transition-transform`}>
-                    <Icon className="h-6 w-6 text-primary-foreground" />
+                  <div className={`inline-flex p-2 sm:p-3 rounded-xl bg-gradient-to-br ${feature.color} mb-3 sm:mb-4 group-hover:scale-110 transition-transform`}>
+                    <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
+                  <h3 className="text-base sm:text-lg font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                     {feature.description}
                   </p>
                 </div>

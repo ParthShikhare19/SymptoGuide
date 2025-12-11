@@ -210,42 +210,42 @@ const Results = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-b from-secondary/30 to-background py-12">
-        <div className="container mx-auto px-4 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-b from-secondary/30 to-background py-6 sm:py-12">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-8">
           {/* Header */}
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <div className="inline-flex items-center gap-2 bg-success/10 text-success px-4 py-2 rounded-full text-sm font-medium mb-4">
-              <CheckCircle className="h-4 w-4" />
+          <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
+            <div className="inline-flex items-center gap-2 bg-success/10 text-success px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+              <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
               <span>Analysis Complete</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 px-4">
               Your Symptom <span className="gradient-text">Analysis</span>
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground px-4 break-words">
               Based on your symptoms:{" "}
               {symptomData?.symptoms?.join(", ") || "General assessment"}
             </p>
           </div>
 
           {/* Back Button */}
-          <div className="max-w-4xl mx-auto mb-6">
+          <div className="max-w-4xl mx-auto mb-4 sm:mb-6">
             <Link to="/symptom-checker">
-              <Button variant="ghost" className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
+              <Button variant="ghost" className="gap-2 text-sm sm:text-base">
+                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
                 Modify Symptoms
               </Button>
             </Link>
           </div>
 
-          <div className="max-w-4xl mx-auto space-y-8">
+          <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
             {/* ML Prediction Results */}
             {prediction && (
-              <section className="healthcare-card p-6 md:p-8 bg-gradient-to-br from-primary/5 to-accent/5">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Brain className="h-5 w-5 text-primary" />
+              <section className="healthcare-card p-4 sm:p-6 md:p-8 bg-gradient-to-br from-primary/5 to-accent/5">
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                    <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
-                  <h2 className="text-xl font-bold">AI-Powered Diagnosis</h2>
+                  <h2 className="text-lg sm:text-xl font-bold">AI-Powered Diagnosis</h2>
                 </div>
                 
                 <div className="space-y-4">
