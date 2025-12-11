@@ -141,7 +141,7 @@ def get_symptom_keywords():
         'total': len(all_keywords)
     })
 
-@app.route('/api/analyze', methods=['POST'])
+@app.route('/api/analyze', methods=['POST', 'OPTIONS'])
 def analyze_symptoms():
     """
     Analyze symptoms and provide comprehensive health assessment using ML model
@@ -156,6 +156,10 @@ def analyze_symptoms():
         "severity": "moderate"
     }
     """
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     if not assistant:
         logger.error("Analyze called but model not initialized")
         return jsonify({'error': 'Model not initialized', 'message': 'Please wait for model initialization'}), 503
@@ -269,11 +273,14 @@ def analyze_symptoms():
             'message': str(e)
         }), 500
 
-@app.route('/api/assess', methods=['POST'])
+@app.route('/api/assess', methods=['POST', 'OPTIONS'])
 def assess():
     """
     Simple triage-style assessment endpoint (fallback when ML model not available)
     """
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     data = request.get_json(silent=True) or {}
 
     symptoms = data.get("symptoms", [])
@@ -322,7 +329,7 @@ def assess():
         }
     )
 
-@app.route('/api/extract-symptoms', methods=['POST'])
+@app.route('/api/extract-symptoms', methods=['POST', 'OPTIONS'])
 def extract_symptoms_endpoint():
     """
     Extract symptoms from natural language text
@@ -332,6 +339,9 @@ def extract_symptoms_endpoint():
         "text": "I have a headache and feeling very tired"
     }
     """
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     if not assistant or not symptom_extractor:
         logger.error("Extract symptoms called but model not initialized")
         return jsonify({'error': 'Model not initialized', 'message': 'Please wait for model initialization'}), 503
