@@ -214,7 +214,7 @@ const Results = () => {
 
   console.log("symptoms:", allSymptoms);
   console.log("assessment departments:", departments);
-  console.log("finalCategories:", finalCategories);
+  console.log("concernAreas:", concernAreas);
   console.log("finalSpecialists:", finalSpecialists);
 
   // CRITICAL: Save department to localStorage when navigating to hospitals
