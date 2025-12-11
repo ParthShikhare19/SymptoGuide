@@ -684,9 +684,26 @@ class HealthcareAssistant:
         print(f"   Features: {expected_n_features}")
     
     def load_model(self, filename=None):
-        """Load model"""
+        """Load model from local file or HuggingFace Hub"""
         if filename is None:
-            filename = os.path.join(_SCRIPT_DIR, '..', 'healthcare_model.pkl')
+            # First, try to load from local path
+            local_path = os.path.join(_SCRIPT_DIR, '..', 'healthcare_model.pkl')
+            
+            if os.path.exists(local_path):
+                filename = local_path
+                print(f"   📂 Loading model from local file: {filename}")
+            else:
+                # Download from HuggingFace Hub
+                print("   ☁️ Downloading model from HuggingFace Hub...")
+                try:
+                    from huggingface_hub import hf_hub_download
+                    filename = hf_hub_download(
+                        repo_id="Parth2121/SymptoGuide",
+                        filename="healthcare_model.pkl"
+                    )
+                    print(f"   ✅ Model downloaded successfully!")
+                except Exception as e:
+                    raise FileNotFoundError(f"Could not load model locally or from HuggingFace: {e}")
         
         with open(filename, 'rb') as f:
             model_data = pickle.load(f)

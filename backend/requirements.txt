@@ -19,3 +19,6 @@ nltk>=3.6.0
 # Utilities
 python-dotenv>=0.19.0
 waitress==3.0.0
+
+# HuggingFace Hub (for loading model from cloud)
+huggingface_hub>=0.19.0
