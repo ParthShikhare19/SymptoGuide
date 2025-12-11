@@ -42,6 +42,7 @@ const Results = () => {
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // CRITICAL: Do NOT run anything on unmount that could clear localStorage
   useEffect(() => {
     const data = sessionStorage.getItem("symptomData");
     const results = sessionStorage.getItem("analysisResults");
@@ -57,6 +58,9 @@ const Results = () => {
     }
     
     setTimeout(() => setIsLoading(false), 800);
+    
+    // CRITICAL: No cleanup function that clears things
+    // This component should NOT touch localStorage at all
   }, [navigate]);
 
   if (isLoading) {
@@ -207,6 +211,22 @@ const Results = () => {
       : specialists.slice(0, 4);
 
   const firstDepartment = departments[0] || "Primary Care";
+
+  console.log("symptoms:", allSymptoms);
+  console.log("assessment departments:", departments);
+  console.log("finalCategories:", finalCategories);
+  console.log("finalSpecialists:", finalSpecialists);
+
+  // CRITICAL: Save department to localStorage when navigating to hospitals
+  // This is the ONLY place where localStorage should be touched in this component
+  const handleNavigateToHospitals = (department: string) => {
+    console.log("🚀 Results.tsx saving to localStorage:", department);
+    localStorage.setItem("selectedHospitalDepartment", department);
+    // Small delay to ensure localStorage is written before navigation
+    setTimeout(() => {
+      navigate("/hospitals");
+    }, 50);
+  };
 
   return (
     <Layout>
@@ -413,15 +433,14 @@ const Results = () => {
                         <Phone className="h-4 w-4" />
                         Call 102 (Ambulance) / 108 (EMS)
                       </Button>
-                      <Link to="/hospitals" state={{ department: "Emergency" }}>
-                        <Button
-                          variant="outline"
-                          className="gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                        >
-                          Find Emergency Room
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                      <Button
+                        variant="outline"
+                        className="gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        onClick={() => handleNavigateToHospitals("Emergency")}
+                      >
+                        Find Emergency Room
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -666,12 +685,15 @@ const Results = () => {
                     need, complete with contact information and directions.
                   </p>
                 </div>
-                <Link to="/hospitals" state={{ department: firstDepartment }}>
-                  <Button variant="hero" size="lg" className="gap-2">
-                    Find Hospitals
-                    <ArrowRight className="h-5 w-5" />
-                  </Button>
-                </Link>
+                <Button
+                  variant="hero"
+                  size="lg"
+                  className="gap-2"
+                  onClick={() => handleNavigateToHospitals(firstDepartment)}
+                >
+                  Find Hospitals
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
               </div>
             </section>
 
