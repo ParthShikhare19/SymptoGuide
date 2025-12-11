@@ -53,3 +53,19 @@
 2025-12-11 11:26:13,078 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:26:13] "[35m[1mOPTIONS /api/analyze HTTP/1.1[0m" 204 -
 2025-12-11 11:26:14,085 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:26:14] "[35m[1mOPTIONS /api/analyze HTTP/1.1[0m" 204 -
 2025-12-11 11:26:14,089 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:26:14] "[35m[1mOPTIONS /api/assess HTTP/1.1[0m" 204 -
+2025-12-11 11:36:34,000 - SymptoGuide.API - INFO - Initializing Healthcare Assistant...
+2025-12-11 11:36:34,166 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.48.254:5000
+2025-12-11 11:36:34,167 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-12-11 11:36:41,541 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:36:41] "[35m[1mGET /api/nearby-hospitals?lat=19.075849988584473&lng=72.89974765353881&department=Primary%20Care HTTP/1.1[0m" 500 -
+2025-12-11 11:36:51,307 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:36:51] "[35m[1mGET /api/nearby-hospitals?lat=19.075849988584473&lng=72.89974765353881&department=Primary%20Care HTTP/1.1[0m" 500 -
+2025-12-11 11:37:19,642 - SymptoGuide.API - INFO - Initializing Healthcare Assistant...
+2025-12-11 11:37:19,782 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.48.254:5000
+2025-12-11 11:37:19,783 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-12-11 11:37:22,335 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:37:22] "[35m[1mGET /api/nearby-hospitals?lat=19.075849988584473&lng=72.89974765353881&department=Primary%20Care HTTP/1.1[0m" 500 -
+2025-12-11 11:37:36,804 - werkzeug - INFO - 127.0.0.1 - - [11/Dec/2025 11:37:36] "[35m[1mGET /api/nearby-hospitals?lat=19.075849988584473&lng=72.89974765353881&department=Dermatology HTTP/1.1[0m" 500 -

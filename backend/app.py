@@ -11,6 +11,10 @@ import logging
 from datetime import datetime
 import requests
 from math import radians, cos, sin, asin, sqrt
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(
