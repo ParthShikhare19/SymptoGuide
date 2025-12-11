@@ -1,0 +1,6 @@
+backend\__pycache__
+backend\model\__pycache__
+.env
+frontend\node_modules
+backend\venv
+backend\model\symptoguide.log

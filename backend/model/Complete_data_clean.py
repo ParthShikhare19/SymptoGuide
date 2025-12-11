@@ -1,12 +1,16 @@
 import pandas as pd
 import numpy as np
 import os
+import sys
 from pathlib import Path
 import re
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import nltk
+
+# Get the directory where this script is located
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Download required NLTK data
 try:
@@ -52,7 +56,7 @@ def clean_symptom_column(text):
 
 def create_cleaned_folder():
     """Create folder for cleaned datasets"""
-    cleaned_folder = "../data/cleaned_datasets"
+    cleaned_folder = os.path.join(_SCRIPT_DIR, "..", "data", "cleaned_datasets")
     if not os.path.exists(cleaned_folder):
         os.makedirs(cleaned_folder)
     return cleaned_folder
@@ -264,8 +268,8 @@ def main():
     # Clean all datasets
     datasets_cleaned = {}
     
-    # Define raw data path
-    raw_data = "../data/raw_data"
+    # Define raw data path - using absolute path based on script location
+    raw_data = os.path.join(_SCRIPT_DIR, "..", "data", "raw_data")
     
     # 1. Clean Diseases and Symptoms (from raw_data)
     if os.path.exists(f"{raw_data}/Diseases_and_Symptoms_dataset.csv"):

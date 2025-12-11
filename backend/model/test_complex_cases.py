@@ -3,8 +3,13 @@ Complex Test Cases for Healthcare Assistant System
 Tests the model with realistic, complex symptom descriptions
 """
 
-from Healthcare_Assistant_System import HealthcareAssistant, print_assessment
 import os
+import sys
+
+# Add the current directory to Python path for local imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from Healthcare_Assistant_System import HealthcareAssistant, print_assessment
 
 # Change to model directory for relative imports
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
